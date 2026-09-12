@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout | Apex Vista</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            height: 75px;
+            background: #111;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7%;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: #ccc;
+        }
+
+        /* PAGE */
+
+        .page-container {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 0 25px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 25px;
+
+            color: #555;
+            text-decoration: none;
+
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: #000;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* CHECKOUT LAYOUT */
+
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* ORDER ITEMS */
+
+        .order-box {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .order-box h2 {
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px 0;
+
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .item-details {
+            margin-top: 5px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .item-total {
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* SUMMARY */
+
+        .summary-box {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+
+            position: sticky;
+            top: 25px;
+        }
+
+        .summary-box h2 {
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+
+            font-size: 14px;
+
+            margin-bottom: 15px;
+        }
+
+        .summary-row span:first-child {
+            color: #777;
+        }
+
+        .summary-total {
+            border-top: 1px solid #eee;
+
+            padding-top: 20px;
+            margin-top: 20px;
+
+            display: flex;
+            justify-content: space-between;
+
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .payment-note {
+            margin-top: 20px;
+
+            padding: 15px;
+
+            background: #f5f5f5;
+
+            border-radius: 8px;
+
+            color: #666;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+        /* PAYMENT BUTTON */
+
+        #paystack-button {
+            width: 100%;
+
+            height: 55px;
+
+            margin-top: 25px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #111;
+            color: white;
+
+            font-family: inherit;
+
+            font-size: 15px;
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+        }
+
+        #paystack-button:hover {
+            background: #333;
+        }
+
+        #paystack-button:disabled {
+            background: #888;
+            cursor: not-allowed;
+        }
+
+        /* EMPTY CART */
+
+        .empty-cart {
+            background: white;
+            padding: 50px;
+            text-align: center;
+            border-radius: 16px;
+
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-cart h2 {
+            margin-bottom: 10px;
+        }
+
+        .empty-cart p {
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .continue-shopping {
+            display: inline-block;
+
+            padding: 12px 22px;
+
+            background: #111;
+            color: white;
+
+            text-decoration: none;
+
+            border-radius: 7px;
+
+            font-size: 14px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 800px) {
+
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-box {
+                position: static;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-links a {
+                font-size: 12px;
+            }
+
+            .page-container {
+                margin: 30px auto;
+                padding: 0 15px;
+            }
+
+            .page-title h1 {
+                font-size: 27px;
+            }
+
+            .order-box,
+            .summary-box {
+                padding: 22px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            APEX VISTA
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/cart">Cart</a>
+            <a href="/orders">My Orders</a>
+        </div>
+
+    </nav>
+
+
+    <!-- CHECKOUT -->
+
+    <main class="page-container">
+
+        <a href="/cart" class="back-link">
+            ← Back to Cart
+        </a>
+
+
+        <div class="page-title">
+
+            <h1>Checkout</h1>
+
+            <p>
+                Review your order before completing your payment.
+            </p>
+
+        </div>
+
+
+        {% if cart_items %}
+
+        <div class="checkout-layout">
+
+
+            <!-- ORDER -->
+
+            <div class="order-box">
+
+                <h2>Order Summary</h2>
+
+
+                {% for item in cart_items %}
+
+                <div class="order-item">
+
+                    <div>
+
+                        <div class="item-name">
+                            {{ item.product_name }}
+                        </div>
+
+                        <div class="item-details">
+                            ₦{{ "{:,.0f}".format(item.price) }}
+                            × {{ item.quantity }}
+                        </div>
+
+                    </div>
+
+                    <div class="item-total">
+
+                        ₦{{ "{:,.0f}".format(item.price * item.quantity) }}
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- PAYMENT SUMMARY -->
+
+            <div class="summary-box">
+
+                <h2>Payment</h2>
+
+
+                <div class="summary-row">
+
+                    <span>Subtotal</span>
+
+                    <span>
+                        ₦{{ "{:,.0f}".format(total) }}
+                    </span>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                    <span>Delivery</span>
+
+                    <span>
+                        Free
+                    </span>
+
+                </div>
+
+
+                <div class="summary-total">
+
+                    <span>Total</span>
+
+                    <span>
+                        ₦{{ "{:,.0f}".format(total) }}
+                    </span>
+
+                </div>
+
+
+                <div class="payment-note">
+
+                    Your payment will be securely processed by
+                    <strong>Paystack</strong>.
+
+                    Your order will only be recorded after the
+                    payment has been successfully verified.
+
+                </div>
+
+
+                <button id="paystack-button">
+                    Pay ₦{{ "{:,.0f}".format(total) }} with Paystack
+                </button>
+
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="empty-cart">
+
+            <h2>Your cart is empty</h2>
+
+            <p>
+                Add some products to your cart before checking out.
+            </p>
+
+            <a href="/" class="continue-shopping">
+                Continue Shopping
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </main>
+
+
+    <script>
+
+        const paystackButton =
+            document.getElementById("paystack-button");
+
+
+        if (paystackButton) {
+
+            paystackButton.addEventListener("click", function () {
+
+                paystackButton.disabled = true;
+
+                paystackButton.innerText =
+                    "Connecting to Paystack...";
+
+
+                fetch("/paystack/initialize", {
+
+                    method: "POST"
+
+                })
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    if (data.authorization_url) {
+
+                        window.location.href =
+                            data.authorization_url;
+
+                    } else {
+
+                        paystackButton.disabled = false;
+
+                        paystackButton.innerText =
+                            "Try Payment Again";
+
+                        alert(
+                            data.error ||
+                            "Unable to start payment."
+                        );
+
+                    }
+
+                })
+
+                .catch(error => {
+
+                    console.error(error);
+
+                    paystackButton.disabled = false;
+
+                    paystackButton.innerText =
+                        "Try Payment Again";
+
+                    alert(
+                        "Something went wrong with payment."
+                    );
+
+                });
+
+            });
+
+        }
+
+    </script>
+
+</body>
+</html>

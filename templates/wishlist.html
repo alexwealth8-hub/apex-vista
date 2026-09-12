@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Wishlist | Apex Vista</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f7f7f8;
+            color: #111;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            height: 78px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo a {
+            text-decoration: none;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+
+        /* =========================
+           PAGE HEADER
+        ========================= */
+
+        .wishlist-header {
+            max-width: 1200px;
+            margin: 55px auto 35px;
+            padding: 0 25px;
+        }
+
+        .wishlist-header h1 {
+            font-size: 38px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .wishlist-header p {
+            color: #777;
+            font-size: 15px;
+        }
+
+        .heart {
+            color: #d4af37;
+            margin-right: 8px;
+        }
+
+        /* =========================
+           PRODUCTS GRID
+        ========================= */
+
+        .wishlist-container {
+            max-width: 1200px;
+            margin: 0 auto 70px;
+            padding: 0 25px;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        /* =========================
+           PRODUCT CARD
+        ========================= */
+
+        .wishlist-card {
+            background: white;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #e8e8e8;
+            transition: 0.3s ease;
+            position: relative;
+        }
+
+        .wishlist-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-image {
+            height: 280px;
+            background: #f3f3f3;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: 0.4s ease;
+        }
+
+        .wishlist-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .wishlist-label {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #111;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            z-index: 2;
+        }
+
+        /* =========================
+           PRODUCT INFO
+        ========================= */
+
+        .product-info {
+            padding: 22px;
+        }
+
+        .product-info h2 {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .rating {
+            color: #d4af37;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 21px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .product-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .view-btn,
+        .remove-btn {
+            padding: 12px 10px;
+            border-radius: 7px;
+            text-align: center;
+            text-decoration: none;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .view-btn {
+            background: #111;
+            color: white;
+            border: 1px solid #111;
+        }
+
+        .view-btn:hover {
+            background: #d4af37;
+            border-color: #d4af37;
+            color: #111;
+        }
+
+        .remove-btn {
+            background: white;
+            color: #555;
+            border: 1px solid #ddd;
+        }
+
+        .remove-btn:hover {
+            background: #f5f5f5;
+            border-color: #111;
+            color: #111;
+        }
+
+        /* =========================
+           EMPTY WISHLIST
+        ========================= */
+
+        .empty-wishlist {
+            background: white;
+            border: 1px solid #e8e8e8;
+            border-radius: 16px;
+            text-align: center;
+            padding: 80px 30px;
+            max-width: 650px;
+            margin: 20px auto 80px;
+        }
+
+        .empty-heart {
+            font-size: 55px;
+            margin-bottom: 20px;
+        }
+
+        .empty-wishlist h2 {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .empty-wishlist p {
+            color: #777;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .shop-btn {
+            display: inline-block;
+            background: #111;
+            color: white;
+            text-decoration: none;
+            padding: 13px 25px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .shop-btn:hover {
+            background: #d4af37;
+            color: #111;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 28px 20px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .footer strong {
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .wishlist-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .logo a {
+                font-size: 20px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-links a {
+                font-size: 12px;
+            }
+
+            .wishlist-header {
+                margin-top: 35px;
+            }
+
+            .wishlist-header h1 {
+                font-size: 29px;
+            }
+
+            .wishlist-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-image {
+                height: 300px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================= -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            <a href="/">APEX VISTA</a>
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/cart">
+                Cart
+            </a>
+
+            <a href="/orders">
+                My Orders
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         PAGE HEADER
+    ========================= -->
+
+    <section class="wishlist-header">
+
+        <h1>
+            <span class="heart">♥</span>
+            My Wishlist
+        </h1>
+
+        <p>
+            Your favourite products, saved for later.
+        </p>
+
+    </section>
+
+
+    <!-- =========================
+         WISHLIST
+    ========================= -->
+
+    <div class="wishlist-container">
+
+        {% if wishlist %}
+
+            <div class="wishlist-grid">
+
+                {% for product in wishlist %}
+
+                    <div class="wishlist-card">
+
+                        <div class="product-image">
+
+                            <div class="wishlist-label">
+                                ♥ Saved
+                            </div>
+
+                            <img
+                                src="{{ url_for('static', filename='images/' + product.image) }}"
+                                alt="{{ product.name }}"
+                            >
+
+                        </div>
+
+
+                        <div class="product-info">
+
+                            <h2>
+                                {{ product.name }}
+                            </h2>
+
+                            <div class="rating">
+                                ★★★★★
+                            </div>
+
+                            <p class="price">
+                                ₦{{ "{:,.0f}".format(product.price) }}
+                            </p>
+
+
+                            <div class="product-actions">
+
+                                <a
+                                    href="/product/{{ product.id }}"
+                                    class="view-btn"
+                                >
+                                    View Product
+                                </a>
+
+                                <a
+                                    href="/remove_from_wishlist/{{ product.id }}"
+                                    class="remove-btn"
+                                >
+                                    Remove
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <!-- EMPTY WISHLIST -->
+
+            <div class="empty-wishlist">
+
+                <div class="empty-heart">
+                    ♡
+                </div>
+
+                <h2>
+                    Your wishlist is empty
+                </h2>
+
+                <p>
+                    Save products you love and come back to them whenever you're ready.
+                </p>
+
+                <a href="/" class="shop-btn">
+                    Continue Shopping
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================
+         FOOTER
+    ========================= -->
+
+    <footer class="footer">
+
+        <strong>APEX VISTA</strong>
+        <br><br>
+        Premium shopping, made simple.
+
+    </footer>
+
+</body>
+</html>

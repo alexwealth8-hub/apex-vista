@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Successful | Apex Vista</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .success-container {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f7f7f7;
+            padding: 20px;
+        }
+
+        .success-box {
+            background: white;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            padding: 50px 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            background: #22c55e;
+            color: white;
+            font-size: 50px;
+            line-height: 80px;
+            font-weight: bold;
+        }
+
+        .success-box h1 {
+            margin-bottom: 15px;
+            font-size: 30px;
+        }
+
+        .success-box p {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .success-message {
+            font-size: 17px;
+        }
+
+        .success-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 13px 25px;
+            background: #111;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .success-btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="success-container">
+
+        <div class="success-box">
+
+            <div class="success-icon">
+                ✓
+            </div>
+
+            <h1>Payment Successful!</h1>
+
+            <p class="success-message">
+                Thank you for shopping with <strong>Apex Vista</strong>.
+            </p>
+
+            <p>
+                Your order has been received successfully.
+            </p>
+
+            <a href="/" class="success-btn">
+                Continue Shopping
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

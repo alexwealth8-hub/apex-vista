@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- 🔥 HERO SCRIPT -->
+<script>
+const heroSlides = [
+    { title: "Elevate Your Style", subtitle: "Discover premium products crafted for comfort, performance, and elegance." },
+    { title: "Luxury Meets Technology", subtitle: "Explore gadgets and fashion designed for modern lifestyles." },
+    { title: "Premium Shopping Experience", subtitle: "Handpicked products with elegance, comfort, and performance." }
+];
+
+let currentSlide = 0;
+
+setInterval(() => {
+    currentSlide = (currentSlide + 1) % heroSlides.length;
+    document.getElementById('hero-title').innerText = heroSlides[currentSlide].title;
+    document.getElementById('hero-subtitle').innerText = heroSlides[currentSlide].subtitle;
+}, 4000);
+</script>
+
+<!-- 🔥 NAVBAR -->
+<div class="navbar">
+    <div class="nav-container">
+
+        <!-- LEFT: LOGO + MAIN NAV -->
+        <div class="nav-left">
+
+            <div class="logo">
+                <a href="/">APEX VISTA</a>
+            </div>
+
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="#products">Shop</a>
+                <a href="/orders">My Orders</a>
+            </div>
+
+        </div>
+
+
+        <!-- CENTER: SEARCH -->
+        <div class="nav-center">
+
+            <form method="GET" action="/" class="search-box">
+
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search premium products..."
+                    value="{{ search or '' }}"
+                >
+
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- RIGHT: WISHLIST + ACCOUNT + CART -->
+        <div class="nav-right">
+
+            <!-- ❤️ WISHLIST -->
+            <a href="/wishlist"
+               class="icon-btn"
+               title="Wishlist">
+                ❤️
+            </a>
+
+
+            <!-- 👤 ACCOUNT -->
+            <div class="user-dropdown" onclick="toggleMenu(this)">
+
+                {% if user %}
+
+                    <div class="user-trigger">
+
+                        <div class="avatar">
+                            {{ user[0]|upper }}
+                        </div>
+
+                        <div class="user-text">
+                            <span class="hello-text">
+                                Hello, {{ user }}
+                            </span>
+
+                           <span class="account-text">Account ▼</span>
+                        </div>
+
+                    </div>
+
+
+                   <div class="dropdown-menu">
+                       <a href="/logout">Logout</a>
+                   </div>
+
+                {% else %}
+
+                    <div class="user-trigger">
+
+                        <div class="user-text">
+
+                            <span class="hello-text">
+                                Hello, Sign in
+                            </span>
+
+                            <span class="account-text">Account ▼</span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dropdown-menu">
+
+                        <a href="/login">
+                            Sign In
+                        </a>
+
+                        <a href="/register">
+                            Create Account
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- 🛒 CART -->
+            <div
+                class="cart-icon"
+                onclick="window.location.href='/cart'"
+                title="Shopping Cart"
+            >
+
+                <i class="fas fa-shopping-cart"></i>
+
+                <span id="cart-count">
+                    {{ cart_count }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- 🔥 HERO -->
+<div class="hero">
+    <div class="hero-content">
+        <h1 id="hero-title">Elevate Your Style</h1>
+        <p id="hero-subtitle">Discover premium products crafted for comfort, performance, and elegance.</p>
+        <a href="#products" class="hero-btn">Shop Now</a>
+    </div>
+</div>
+
+<!-- 🛍 PRODUCTS -->
+<div class="container">
+
+{% if search %}
+
+    <!-- 🔎 SEARCH RESULTS -->
+    <h2 class="section-title">
+        Search Results for "{{ search }}"
+    </h2>
+
+    <div class="all-products-grid" id="products">
+
+        {% if products %}
+
+            {% for product in products %}
+            <div class="product-card">
+
+                <div class="product-image-wrapper">
+
+                    {% if product.tag %}
+                    <div class="product-badge {{ product.tag }}">
+                        {{ product.tag }}
+                    </div>
+                    {% endif %}
+
+                    <img src="{{ url_for('static', filename='images/' + product.image) }}">
+
+                    <div class="product-overlay">
+                        <a href="{{ url_for('product_details', product_id=product.id) }}"
+                           class="quick-view-btn">
+                            Quick View
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="product-info">
+
+                    <h3>{{ product.name }}</h3>
+
+                    <div class="product-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-count">(24)</span>
+                    </div>
+
+                    <p class="price">₦{{ product.price }}</p>
+
+                    <div class="product-actions">
+
+                        <a href="/add_to_wishlist/{{ product.id }}"
+                           class="wishlist-btn">
+                            ❤️
+                        </a>
+
+                        <button class="premium-cart-btn add-to-cart"
+                                data-id="{{ product.id }}">
+                            <span class="btn-text">Add to Cart</span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+            {% endfor %}
+
+        {% else %}
+
+            <div class="no-search-results">
+                <i class="fas fa-search"></i>
+                <h3>No products found</h3>
+                <p>We couldn't find anything matching "{{ search }}".</p>
+                <a href="/" class="hero-btn">Continue Shopping</a>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+{% else %}
+
+    <!-- 🔥 TRENDING -->
+    <h2 class="section-title">Trending Products</h2>
+
+    <div class="scroll-section">
+
+        <div class="scroll-backdrop"></div>
+
+        <div class="scroll-wrapper">
+
+            <button class="scroll-btn left"
+                    onclick="scrollProducts(this, -1)">
+                ‹
+            </button>
+
+            <div class="new-arrivals-grid">
+
+                {% for product in trending_products %}
+
+                <div class="product-card">
+
+                    <div class="product-image-wrapper">
+
+                        {% if product.tag %}
+                        <div class="product-badge {{ product.tag }}">
+                            {{ product.tag }}
+                        </div>
+                        {% endif %}
+
+                        <img src="{{ url_for('static', filename='images/' + product.image) }}">
+
+                        <div class="product-overlay">
+                            <a href="{{ url_for('product_details', product_id=product.id) }}"
+                               class="quick-view-btn">
+                                Quick View
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>{{ product.name }}</h3>
+
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-count">(24)</span>
+                        </div>
+
+                        <p class="price">₦{{ product.price }}</p>
+
+                        <div class="product-actions">
+
+                            <a href="/add_to_wishlist/{{ product.id }}"
+                               class="wishlist-btn">
+                                ❤️
+                            </a>
+
+                            <button class="premium-cart-btn add-to-cart"
+                                    data-id="{{ product.id }}">
+                                <span class="btn-text">Add to Cart</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <button class="scroll-btn right"
+                    onclick="scrollProducts(this, 1)">
+                ›
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- 🔥 NEW ARRIVALS -->
+    <h2 class="section-title">New Arrivals</h2>
+
+    <div class="scroll-section">
+
+        <div class="scroll-backdrop"></div>
+
+        <div class="scroll-wrapper">
+
+            <button class="scroll-btn left"
+                    onclick="scrollProducts(this, -1)">
+                ‹
+            </button>
+
+            <div class="new-arrivals-grid" id="products">
+
+                {% for product in new_arrivals %}
+
+                <div class="product-card">
+
+                    <div class="product-image-wrapper">
+
+                        <img src="{{ url_for('static', filename='images/' + product.image) }}">
+
+                        <div class="product-overlay">
+                            <a href="{{ url_for('product_details', product_id=product.id) }}"
+                               class="quick-view-btn">
+                                Quick View
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="product-info">
+
+                        <h3>{{ product.name }}</h3>
+
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="rating-count">(24)</span>
+                        </div>
+
+                        <p class="price">₦{{ product.price }}</p>
+
+                        <div class="product-actions">
+
+                            <a href="/add_to_wishlist/{{ product.id }}"
+                               class="wishlist-btn">
+                                ❤️
+                            </a>
+
+                            <button class="premium-cart-btn add-to-cart"
+                                    data-id="{{ product.id }}">
+                                <span class="btn-text">Add to Cart</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+            <button class="scroll-btn right"
+                    onclick="scrollProducts(this, 1)">
+                ›
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- 🔥 ALL PRODUCTS -->
+    <h2 class="section-title">All Products</h2>
+
+    <div class="all-products-grid">
+
+        {% for product in products %}
+
+        <div class="product-card">
+
+            <div class="product-image-wrapper">
+
+                <img src="{{ url_for('static', filename='images/' + product.image) }}">
+
+                <div class="product-overlay">
+                    <a href="{{ url_for('product_details', product_id=product.id) }}"
+                       class="quick-view-btn">
+                        Quick View
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="product-info">
+
+                <h3>{{ product.name }}</h3>
+
+                <div class="product-rating">
+                    <span class="stars">★★★★★</span>
+                    <span class="rating-count">(24)</span>
+                </div>
+
+                <p class="price">₦{{ product.price }}</p>
+
+                <div class="product-actions">
+
+                    <a href="/add_to_wishlist/{{ product.id }}"
+                       class="wishlist-btn">
+                        ❤️
+                    </a>
+
+                    <button class="premium-cart-btn add-to-cart"
+                            data-id="{{ product.id }}">
+                        <span class="btn-text">Add to Cart</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endif %}
+
+<!-- 🔥 SCRIPTS -->
+<script>
+
+function removeItem(productId) {
+    fetch('/remove_item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("cart-count").innerText = data.cart_count;
+        location.reload(); // keep for now
+    })
+    .catch(err => console.error(err));
+}
+
+const clickSound = new Audio("/static/sounds/click.mp3");
+clickSound.volume = 0.5;
+
+document.addEventListener("click", (e) => {
+    // ❌ ignore clicks inside modal
+    if (e.target.closest(".preview-content")) return;
+
+    clickSound.play().then(() => {
+        clickSound.pause();
+        clickSound.currentTime = 0;
+    }).catch(() => {});
+}, { once: true });
+
+function flyToCart(imgElement) {
+    const cart = document.querySelector(".cart-icon");
+
+    if (!cart || !imgElement) return;
+
+    const imgRect = imgElement.getBoundingClientRect();
+    const cartRect = cart.getBoundingClientRect();
+
+    const flyingImg = imgElement.cloneNode(true);
+    flyingImg.classList.add("flying-img");
+
+    flyingImg.style.position = "fixed";
+    flyingImg.style.left = imgRect.left + "px";
+    flyingImg.style.top = imgRect.top + "px";
+    flyingImg.style.width = imgRect.width + "px";
+    flyingImg.style.height = imgRect.height + "px";
+    flyingImg.style.transition = "all 0.7s ease";
+    flyingImg.style.zIndex = "9999";
+
+    document.body.appendChild(flyingImg);
+
+    // ✈️ START FLY
+    setTimeout(() => {
+        flyingImg.style.left = cartRect.left + "px";
+        flyingImg.style.top = cartRect.top + "px";
+        flyingImg.style.width = "40px";
+        flyingImg.style.height = "40px";
+        flyingImg.style.opacity = "0.5";
+    }, 50);
+
+    // 🎯 LANDING MOMENT (THIS IS THE MAGIC PART)
+    setTimeout(() => {
+
+        // 🧹 REMOVE IMAGE
+        flyingImg.remove();
+
+        // 🔥 CART BOUNCE
+        cart.classList.add("cart-bounce");
+
+        // 🔊 SOUND
+        if (clickSound) {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(err => console.log(err));
+        }
+
+        setTimeout(() => {
+            cart.classList.remove("cart-bounce");
+        }, 500);
+
+    }, 700);
+}
+
+
+function addToCart(productId) {
+    fetch('/add_to_cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("cart-count").innerText = data.cart_count;
+    });
+}
+
+
+function updateCartCount(newCount) {
+    const countEl = document.getElementById("cart-count");
+
+    if (!countEl) return;
+
+    const current = parseInt(countEl.innerText) || 0;
+
+    let start = current;
+    let end = newCount;
+    let duration = 200;
+    let stepTime = Math.abs(Math.floor(duration / (end - start || 1)));
+
+    let counter = setInterval(() => {
+        start += (start < end ? 1 : -1);
+        countEl.innerText = start;
+
+        if (start === end) {
+            clearInterval(counter);
+        }
+    }, stepTime);
+
+    // 💥 ADD VISUAL POP
+    countEl.classList.add("bump");
+
+    setTimeout(() => {
+        countEl.classList.remove("bump");
+    }, 350);
+}
+
+// ❤️ wishlist animation
+document.querySelectorAll(".wishlist-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+
+        this.classList.add("heart-animate", "wishlist-active");
+
+        setTimeout(() => {
+            this.classList.remove("heart-animate");
+        }, 400);
+    });
+});
+
+
+function scrollProducts(button, direction) {
+    const wrapper = button.parentElement;
+    const grid = wrapper.querySelector(".new-arrivals-grid");
+
+    const scrollAmount = grid.querySelector(".product-card").offsetWidth + 24;
+
+    grid.scrollBy({
+        left: direction * scrollAmount,
+        behavior: "smooth"
+    });
+
+    setTimeout(() => updateArrows(wrapper), 400);
+}
+
+function updateQuantity(id, change) {
+    let qtyElement = document.getElementById(`qty-${id}`);
+    let currentQty = parseInt(qtyElement.innerText);
+
+    let minusBtn = qtyElement.previousElementSibling;
+
+    if (currentQty === 1) {
+        minusBtn.innerText = "🗑"; // trash icon
+    } else {
+        minusBtn.innerText = "-";
+    }
+
+    let newQty = currentQty + change;
+
+    if (newQty <= 0) {
+        removeItem(id);
+        return;
+    }
+
+    qtyElement.innerText = newQty;
+
+    fetch(`/update_quantity/${id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ quantity: newQty })
+    });
+}
+function updateArrows(wrapper) {
+    const grid = wrapper.querySelector(".new-arrivals-grid");
+    const leftBtn = wrapper.querySelector(".scroll-btn.left");
+    const rightBtn = wrapper.querySelector(".scroll-btn.right");
+
+    if (!grid) return;
+
+    // at start
+    if (grid.scrollLeft <= 0) {
+        leftBtn.style.display = "none";
+    } else {
+        leftBtn.style.display = "block";
+    }
+
+    // at end
+    if (grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 5) {
+        rightBtn.style.display = "none";
+    } else {
+        rightBtn.style.display = "block";
+    }
+}
+
+document.querySelectorAll(".scroll-wrapper").forEach(wrapper => {
+    const grid = wrapper.querySelector(".new-arrivals-grid");
+
+    updateArrows(wrapper);
+
+    grid.addEventListener("scroll", () => {
+        updateArrows(wrapper);
+    });
+});
+
+document.querySelectorAll(".new-arrivals-grid").forEach(grid => {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    grid.addEventListener("mousedown", (e) => {
+        isDown = true;
+        grid.classList.add("dragging");
+        startX = e.pageX - grid.offsetLeft;
+        scrollLeft = grid.scrollLeft;
+    });
+
+    grid.addEventListener("mouseleave", () => {
+        isDown = false;
+        grid.classList.remove("dragging");
+    });
+
+    grid.addEventListener("mouseup", () => {
+        isDown = false;
+        grid.classList.remove("dragging");
+    });
+
+    grid.addEventListener("mousemove", (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - grid.offsetLeft;
+        const walk = (x - startX) * 1.5; // speed
+        grid.scrollLeft = scrollLeft - walk;
+    });
+});
+
+</script>
+
+
+<script>
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function () {
+
+        const productId = this.getAttribute('data-id');
+        const btn = this;
+        const text = btn.querySelector(".btn-text");
+
+        btn.classList.add("loading");
+        text.innerText = "Adding...";
+
+        fetch('/add_to_cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: productId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("SERVER RESPONSE:", data);
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            // ✅ FIX: EVERYTHING MUST BE INSIDE HERE
+            updateCartCount(data.cart_count);
+
+            const card = btn.closest(".product-card");
+            const img = card.querySelector("img");
+            flyToCart(img);
+
+            btn.classList.remove("loading");
+btn.classList.add("added");
+text.innerText = "Added ✓";
+
+setTimeout(() => {
+    btn.classList.remove("added");
+    text.innerText = "Add to Cart";
+}, 1500);
+        })
+        .catch(err => {
+            console.error("ERROR:", err);
+            btn.classList.remove("loading");
+            text.innerText = "Error";
+        });
+
+    });
+});
+</script>
+
+<script>
+function toggleMenu(el) {
+
+    const menu = el.querySelector(".dropdown-menu");
+
+    if (!menu) return;
+
+    menu.classList.toggle("show");
+}
+
+
+/* Close Account menu when clicking outside */
+document.addEventListener("click", function(event) {
+
+    const dropdown = document.querySelector(".user-dropdown");
+
+    if (!dropdown) return;
+
+    if (!dropdown.contains(event.target)) {
+
+        const menu = dropdown.querySelector(".dropdown-menu");
+
+        if (menu) {
+            menu.classList.remove("show");
+        }
+
+    }
+
+});
+</script>
+
+</body>
+</html>

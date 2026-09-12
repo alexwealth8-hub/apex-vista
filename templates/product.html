@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ product.name }} | Apex Vista</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f7f7f7;
+            color: #222;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            height: 75px;
+            background: #111;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7%;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ccc;
+        }
+
+        /* PAGE */
+
+        .page-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 25px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 25px;
+
+            color: #555;
+            text-decoration: none;
+
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: #000;
+        }
+
+        /* PRODUCT */
+
+        .product-container {
+            background: white;
+            border-radius: 18px;
+
+            padding: 40px;
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 60px;
+
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+        }
+
+        /* IMAGE */
+
+        .product-image-area {
+            background: #f5f5f5;
+
+            border-radius: 15px;
+
+            min-height: 520px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+        }
+
+        .product-image-area img {
+            width: 100%;
+            height: 520px;
+
+            object-fit: contain;
+
+            padding: 30px;
+
+            transition: transform 0.4s ease;
+        }
+
+        .product-image-area:hover img {
+            transform: scale(1.04);
+        }
+
+        /* DETAILS */
+
+        .product-details {
+            padding: 15px 0;
+        }
+
+        .category {
+            font-size: 13px;
+            color: #777;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1.5px;
+
+            margin-bottom: 12px;
+        }
+
+        .product-details h1 {
+            font-size: 36px;
+            line-height: 1.2;
+
+            margin-bottom: 18px;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 20px;
+        }
+
+        .stars {
+            color: #f5b301;
+            font-size: 18px;
+        }
+
+        .rating-text {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .price {
+            font-size: 30px;
+            font-weight: 700;
+
+            margin-bottom: 25px;
+        }
+
+        .description {
+            color: #666;
+
+            font-size: 15px;
+
+            line-height: 1.8;
+
+            margin-bottom: 30px;
+        }
+
+        /* HIGHLIGHTS */
+
+        .highlights {
+            margin-bottom: 30px;
+        }
+
+        .highlights h3 {
+            font-size: 16px;
+
+            margin-bottom: 15px;
+        }
+
+        .highlights ul {
+            list-style: none;
+        }
+
+        .highlights li {
+            margin-bottom: 9px;
+
+            font-size: 14px;
+
+            color: #555;
+        }
+
+        .highlights li::before {
+            content: "✓";
+
+            color: #111;
+
+            font-weight: 700;
+
+            margin-right: 10px;
+        }
+
+        /* QUANTITY */
+
+        .quantity-section {
+            margin-bottom: 25px;
+        }
+
+        .quantity-section label {
+            display: block;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            margin-bottom: 10px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+
+            width: 135px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 8px;
+
+            overflow: hidden;
+        }
+
+        .quantity-control button {
+            width: 42px;
+            height: 42px;
+
+            border: none;
+
+            background: #f5f5f5;
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+        .quantity-control button:hover {
+            background: #e9e9e9;
+        }
+
+        .quantity-control span {
+            flex: 1;
+
+            text-align: center;
+
+            font-size: 15px;
+        }
+
+        /* BUTTONS */
+
+        .action-buttons {
+            display: flex;
+
+            gap: 12px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+
+            height: 52px;
+
+            border-radius: 8px;
+
+            font-family: inherit;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+        }
+
+        .add-cart-btn {
+            background: white;
+
+            color: #111;
+
+            border: 1px solid #111;
+        }
+
+        .add-cart-btn:hover {
+            background: #111;
+
+            color: white;
+        }
+
+   .wishlist-product-btn {
+    background: white;
+    color: #111;
+    border: 1px solid #ddd;
+    transition: all 0.25s ease;
+}
+
+.wishlist-product-btn:hover {
+    background: #f5f5f5;
+    border-color: #111;
+}
+
+
+.wishlist-product-btn:disabled {
+    background: #111;
+    color: white;
+    border-color: #111;
+    cursor: default;
+    opacity: 1;
+}
+
+        .buy-btn {
+            background: #111;
+
+            color: white;
+
+            border: 1px solid #111;
+        }
+
+        .buy-btn:hover {
+            background: #333;
+        }
+
+        /* =========================
+           APEX VISTA TOAST
+        ========================= */
+
+        .toast {
+            position: fixed;
+
+            top: 95px;
+            right: 30px;
+
+            min-width: 300px;
+            max-width: 380px;
+
+            background: white;
+
+            border-radius: 12px;
+
+            padding: 16px 18px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+
+            border-left: 4px solid #111;
+
+            z-index: 99999;
+
+            transform: translateX(420px);
+
+            opacity: 0;
+
+            transition:
+                transform 0.35s ease,
+                opacity 0.35s ease;
+
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+
+            opacity: 1;
+        }
+
+        .toast-icon {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 50%;
+
+            background: #111;
+
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 16px;
+
+            font-weight: 700;
+
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            display: flex;
+            flex-direction: column;
+
+            gap: 2px;
+        }
+
+        .toast-title {
+            font-size: 14px;
+
+            font-weight: 700;
+
+            color: #111;
+        }
+
+        .toast-message {
+            font-size: 12px;
+
+            color: #777;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .product-container {
+                grid-template-columns: 1fr;
+
+                gap: 35px;
+
+                padding: 25px;
+            }
+
+            .product-image-area {
+                min-height: 400px;
+            }
+
+            .product-image-area img {
+                height: 400px;
+            }
+
+            .product-details h1 {
+                font-size: 30px;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-links a {
+                font-size: 12px;
+            }
+
+            .page-container {
+                margin: 30px auto;
+                padding: 0 15px;
+            }
+
+            .product-container {
+                border-radius: 12px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .toast {
+                top: 85px;
+                right: 15px;
+                left: 15px;
+
+                min-width: auto;
+                max-width: none;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            APEX VISTA
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/cart">
+                Cart
+            </a>
+
+            <a href="/orders">
+                My Orders
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- APEX VISTA TOAST -->
+
+    <div id="toast" class="toast">
+
+        <div class="toast-icon">
+            ✓
+        </div>
+
+        <div class="toast-content">
+
+            <div id="toast-title" class="toast-title">
+                Added to cart
+            </div>
+
+            <div id="toast-message" class="toast-message">
+                Product added successfully.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PRODUCT PAGE -->
+
+    <main class="page-container">
+
+        <a href="/" class="back-link">
+            ← Back to Shopping
+        </a>
+
+
+        <div class="product-container">
+
+            <!-- PRODUCT IMAGE -->
+
+            <div class="product-image-area">
+
+                <img
+                    src="{{ url_for('static', filename='images/' + product.image) }}"
+                    alt="{{ product.name }}"
+                >
+
+            </div>
+
+
+            <!-- PRODUCT DETAILS -->
+
+            <div class="product-details">
+
+                <div class="category">
+                    Apex Vista Collection
+                </div>
+
+                <h1>
+                    {{ product.name }}
+                </h1>
+
+
+                <div class="rating">
+
+                    <span class="stars">
+                        ★★★★★
+                    </span>
+
+                    <span class="rating-text">
+                        5.0 (Customer Rating)
+                    </span>
+
+                </div>
+
+
+                <div class="price">
+                    ₦{{ "{:,.0f}".format(product.price) }}
+                </div>
+
+
+                <p class="description">
+
+                    {{ product.name }} is one of our carefully selected products
+                    at Apex Vista, offering excellent quality, style and value.
+                    Designed for customers who appreciate reliable products
+                    and a great shopping experience.
+
+                </p>
+
+
+                <!-- HIGHLIGHTS -->
+
+                <div class="highlights">
+
+                    <h3>
+                        Product Highlights
+                    </h3>
+
+                    <ul>
+
+                        <li>
+                            Quality product selection
+                        </li>
+
+                        <li>
+                            Carefully selected for Apex Vista customers
+                        </li>
+
+                        <li>
+                            Secure online checkout
+                        </li>
+
+                        <li>
+                            Fast and convenient ordering
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+                <!-- QUANTITY -->
+
+                <div class="quantity-section">
+
+                    <label>
+                        Quantity
+                    </label>
+
+                    <div class="quantity-control">
+
+                        <button onclick="decreaseQuantity()">
+                            −
+                        </button>
+
+                        <span id="quantity">
+                            1
+                        </span>
+
+                        <button onclick="increaseQuantity()">
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div class="action-buttons">
+
+  <button
+    class="wishlist-product-btn"
+    onclick="toggleWishlist()"
+    type="button"
+>
+    {% if in_wishlist %}
+        ♥ In Wishlist
+    {% else %}
+        ❤️ Wishlist
+    {% endif %}
+</button>
+
+    <button
+        class="add-cart-btn"
+        onclick="addToCart()"
+        type="button"
+    >
+        Add to Cart
+    </button>
+
+    <button
+        class="buy-btn"
+        onclick="buyNow()"
+        type="button"
+    >
+        Buy Now
+    </button>
+
+</div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        let quantity = 1;
+
+        let toastTimer;
+
+
+        /* =========================
+           QUANTITY
+        ========================= */
+
+        function increaseQuantity() {
+
+            quantity++;
+
+            document.getElementById("quantity").innerText = quantity;
+
+        }
+
+
+        function decreaseQuantity() {
+
+            if (quantity > 1) {
+
+                quantity--;
+
+                document.getElementById("quantity").innerText = quantity;
+
+            }
+
+        }
+
+
+        /* =========================
+           TOAST
+        ========================= */
+
+        function showToast(title, message) {
+
+            const toast = document.getElementById("toast");
+
+            document.getElementById("toast-title").innerText = title;
+
+            document.getElementById("toast-message").innerText = message;
+
+            toast.classList.add("show");
+
+            clearTimeout(toastTimer);
+
+            toastTimer = setTimeout(() => {
+
+                toast.classList.remove("show");
+
+            }, 3000);
+
+        }
+
+        function toggleWishlist() {
+
+    const button = document.querySelector(".wishlist-product-btn");
+
+    const inWishlist = button.textContent.includes("In Wishlist");
+
+    const url = inWishlist
+        ? "/remove_from_wishlist/{{ product.id }}"
+        : "/add_to_wishlist/{{ product.id }}";
+
+    fetch(url)
+        .then(() => {
+
+            if (inWishlist) {
+
+                button.innerHTML = "❤️ Wishlist";
+
+                showToast(
+                    "Removed from Wishlist",
+                    "{{ product.name }} has been removed from your wishlist."
+                );
+
+            } else {
+
+                button.innerHTML = "♥ In Wishlist";
+
+                showToast(
+                    "Added to Wishlist",
+                    "{{ product.name }} has been added to your wishlist."
+                );
+
+            }
+
+        })
+        .catch(() => {
+
+            showToast(
+                "Something went wrong",
+                "We couldn't update your wishlist."
+            );
+
+        });
+}
+
+        function addToCart() {
+
+            fetch("/add_to_cart", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    product_id: {{ product.id }},
+
+                    quantity: quantity
+
+                })
+
+            })
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                if (data.error) {
+
+                    showToast(
+                        "Unable to add item",
+                        data.error
+                    );
+
+                    return;
+
+                }
+
+                showToast(
+                    "Added to cart",
+                    "{{ product.name }} × " + quantity + " added successfully."
+                );
+
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                showToast(
+                    "Something went wrong",
+                    "Please try again."
+                );
+
+            });
+
+        }
+
+
+        /* =========================
+           BUY NOW
+        ========================= */
+
+        function buyNow() {
+
+            fetch("/add_to_cart", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    product_id: {{ product.id }},
+
+                    quantity: quantity
+
+                })
+
+            })
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                if (data.error) {
+
+                    showToast(
+                        "Unable to continue",
+                        data.error
+                    );
+
+                    return;
+
+                }
+
+                window.location.href = "/checkout";
+
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                showToast(
+                    "Something went wrong",
+                    "Please try again."
+                );
+
+            });
+
+        }
+
+    </script>
+
+</body>
+</html>

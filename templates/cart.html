@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="cart-container">
+
+    <!-- LEFT SIDE (CART ITEMS) -->
+    <div class="cart-items" id="cart-items">
+
+        {% for item in cart %}
+
+        <div class="cart-item" data-id="{{ item.id }}">
+
+            <!-- IMAGE -->
+            <img src="/static/images/{{ item.image }}" class="cart-img">
+
+            <!-- DETAILS -->
+            <div class="item-details">
+
+                <h4>{{ item.name }}</h4>
+
+                <p>₦<span class="item-price">{{ item.price }}</span></p>
+
+                <!-- QUANTITY -->
+                <div class="cart-qty">
+
+                    <button onclick="changeQty({{ item.id }}, 'decrease')">
+                        -
+                    </button>
+
+                    <span id="qty-{{ item.id }}">
+                        {{ item.quantity }}
+                    </span>
+
+                    <button onclick="changeQty({{ item.id }}, 'increase')">
+                        +
+                    </button>
+
+                </div>
+
+                <button
+                    class="remove-btn"
+                    id="remove-{{ item.id }}"
+                    onclick="removeItem({{ item.id }})"
+                    {% if item.quantity != 1 %}style="display:none;"{% endif %}>
+                    Remove
+                </button>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- RIGHT SIDE -->
+    <div class="cart-summary">
+
+        <h2>Summary</h2>
+
+        <p>
+            Subtotal:
+            <span id="total">₦{{ total }}</span>
+        </p>
+
+        <p>Shipping: Free</p>
+
+        <hr>
+
+        <h3>
+            Total:
+            <span id="finalTotal">₦{{ total }}</span>
+        </h3>
+
+        <a href="/checkout" class="checkout-btn">
+            Proceed to Checkout
+        </a>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function changeQty(productId, action) {
+
+    fetch('/update_quantity', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            action: action
+        })
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        // If item was removed
+        if (data.removed_id) {
+
+            const itemEl = document.querySelector(
+                `[data-id="${data.removed_id}"]`
+            );
+
+            if (itemEl) {
+                itemEl.remove();
+            }
+        }
+
+
+        // Update quantities and Remove buttons
+        data.cart.forEach(item => {
+
+            const qtyEl = document.getElementById(
+                `qty-${item.id}`
+            );
+
+            if (qtyEl) {
+                qtyEl.innerText = item.quantity;
+            }
+
+
+            const removeBtn = document.getElementById(
+                `remove-${item.id}`
+            );
+
+            if (removeBtn) {
+
+                removeBtn.style.display =
+                    item.quantity === 1
+                        ? 'inline-block'
+                        : 'none';
+            }
+
+        });
+
+
+        // Update totals
+        document.getElementById('total').innerText =
+            "₦" + data.total;
+
+        document.getElementById('finalTotal').innerText =
+            "₦" + data.total;
+
+
+        // Empty cart
+        if (data.cart.length === 0) {
+
+            document.querySelector('.cart-container').innerHTML =
+                "<p class='empty-cart'>Your cart is empty</p>";
+        }
+
+    })
+
+    .catch(error => {
+        console.error("Error:", error);
+    });
+
+}
+
+
+function removeItem(productId) {
+
+    fetch('/remove_item', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            product_id: productId
+        })
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        const itemEl = document.querySelector(
+            `[data-id="${productId}"]`
+        );
+
+        if (itemEl) {
+            itemEl.remove();
+        }
+
+
+        // Update totals
+        document.getElementById('total').innerText =
+            "₦" + data.total;
+
+        document.getElementById('finalTotal').innerText =
+            "₦" + data.total;
+
+
+        // Empty cart
+        if (data.cart.length === 0) {
+
+            document.querySelector('.cart-container').innerHTML =
+                "<p class='empty-cart'>Your cart is empty</p>";
+        }
+
+    })
+
+    .catch(error => {
+        console.error("Error:", error);
+    });
+
+}
+
+</script>
+
+</body>
+</html>

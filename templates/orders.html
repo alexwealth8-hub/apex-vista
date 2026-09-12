@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Orders | Apex Vista</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f6fa;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #111827;
+        }
+
+        .orders-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .orders-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .orders-title h1 {
+            margin: 0;
+            font-size: 34px;
+            font-weight: 700;
+        }
+
+        .orders-title p {
+            margin-top: 10px;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        /* ORDER CARD */
+
+        .order-card {
+            background: #ffffff;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+            border: 1px solid #e5e7eb;
+        }
+
+        /* HEADER */
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 25px;
+            background: #fafafa;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .order-number {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .order-status {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* PRODUCTS */
+
+        .order-products {
+            padding: 5px 25px;
+        }
+
+        .order-product {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            padding: 22px 0;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .order-product:last-child {
+            border-bottom: none;
+        }
+
+        .product-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .product-details {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .product-subtotal {
+            text-align: right;
+            font-size: 17px;
+            font-weight: 700;
+            align-self: center;
+        }
+
+        /* TOTAL */
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: #fafafa;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .total-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .order-total {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* EMPTY ORDERS */
+
+        .empty-orders {
+            background: white;
+            padding: 50px 25px;
+            text-align: center;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .empty-orders h2 {
+            margin-bottom: 10px;
+        }
+
+        .empty-orders p {
+            color: #6b7280;
+        }
+
+        /* BUTTON */
+
+        .continue-btn {
+            display: block;
+            width: fit-content;
+            margin: 35px auto 10px;
+            padding: 14px 28px;
+            background: #111827;
+            color: white;
+            text-decoration: none;
+            border-radius: 9px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .continue-btn:hover {
+            background: #000000;
+            transform: translateY(-1px);
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            .orders-container {
+                margin: 25px auto;
+                padding: 15px;
+            }
+
+            .orders-title h1 {
+                font-size: 28px;
+            }
+
+            .order-header {
+                padding: 18px;
+            }
+
+            .order-number {
+                font-size: 15px;
+            }
+
+            .order-products {
+                padding: 5px 18px;
+            }
+
+            .order-product {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .product-subtotal {
+                text-align: left;
+            }
+
+            .order-footer {
+                padding: 18px;
+            }
+
+            .order-total {
+                font-size: 19px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="orders-container">
+
+    <div class="orders-title">
+        <h1>My Orders</h1>
+        <p>View your completed purchases and order details.</p>
+    </div>
+
+
+    {% if order_items %}
+
+        {% set grouped_orders = {} %}
+
+        {% for order in order_items %}
+
+            {% set order_key = order[4] if order[4] else "OLD-" ~ order[0] %}
+
+            {% if order_key not in grouped_orders %}
+
+                {% set _ = grouped_orders.update({
+                    order_key: []
+                }) %}
+
+            {% endif %}
+
+            {% set _ = grouped_orders[order_key].append(order) %}
+
+        {% endfor %}
+
+
+        {% for order_number, items in grouped_orders.items() %}
+
+            <div class="order-card">
+
+                <!-- ORDER HEADER -->
+
+                <div class="order-header">
+
+                    <h3 class="order-number">
+                        Order #{{ order_number }}
+                    </h3>
+
+                    <span class="order-status">
+                        ✓ Paid
+                    </span>
+
+                </div>
+
+
+                <!-- PRODUCTS -->
+
+                {% set order_total = namespace(value=0) %}
+
+                <div class="order-products">
+
+                    {% for order in items %}
+
+                        {% set item_total = order[2] * order[3] %}
+
+                        {% set order_total.value =
+                            order_total.value + item_total %}
+
+
+                        <div class="order-product">
+
+                            <div>
+
+                                <div class="product-name">
+                                    {{ order[1] }}
+                                </div>
+
+                                <div class="product-details">
+
+                                    Price:
+                                    ₦{{ "{:,.0f}".format(order[2]) }}
+
+                                    <br>
+
+                                    Quantity:
+                                    {{ order[3] }}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="product-subtotal">
+
+                                ₦{{ "{:,.0f}".format(item_total) }}
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- TOTAL -->
+
+                <div class="order-footer">
+
+                    <div class="total-label">
+                        Order Total
+                    </div>
+
+                    <div class="order-total">
+                        ₦{{ "{:,.0f}".format(order_total.value) }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+
+    {% else %}
+
+        <div class="empty-orders">
+
+            <h2>No Orders Yet</h2>
+
+            <p>
+                You haven't placed any orders yet.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+
+    <a href="/" class="continue-btn">
+        Continue Shopping
+    </a>
+
+</div>
+
+</body>
+
+</html>
