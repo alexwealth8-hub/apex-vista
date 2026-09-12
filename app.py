@@ -7,6 +7,7 @@ DB_NAME = "your_database.db"
 from flask import Flask, render_template, request, redirect, session
 import random
 from flask import Flask, render_template, request, session, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 import uuid
 
@@ -280,12 +281,13 @@ def register():
             conn.close()
             return "User already exists!"
 
+        hashed_password = generate_password_hash(password)
         cursor.execute(
             """
             INSERT INTO users (email, password, name)
             VALUES (?, ?, ?)
             """,
-            (email, password, name)
+            (email, hashed_password, name)
         )
 
         conn.commit()
@@ -305,21 +307,111 @@ def login():
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT email, password, name FROM users WHERE email=?",
+            "SELECT id, email, password, name FROM users WHERE email=?",
             (email,)
         )
         user = cursor.fetchone()
 
+        if user:
+            stored_password = user[2]
+
+            # Check if the password is already securely hashed
+            if stored_password.startswith(("scrypt:", "pbkdf2:")):
+                password_valid = check_password_hash(
+                    stored_password,
+                    password
+                )
+
+            else:
+                # Existing account with an old plaintext password
+                password_valid = stored_password == password
+
+                if password_valid:
+                    # Upgrade the old password to a secure hash
+                    new_password = generate_password_hash(password)
+
+                    cursor.execute(
+                        "UPDATE users SET password=? WHERE id=?",
+                        (new_password, user[0])
+                    )
+                    conn.commit()
+
+            if password_valid:
+                conn.close()
+
+                session['user'] = user[3]
+                session['user_id'] = user[1]
+
+                return redirect('/')
+
         conn.close()
-
-        if user and user[1] == password:
-            session['user'] = user[2]
-            session['user_id'] = user[0]
-            return redirect('/')
-
         return "Invalid credentials"
 
     return render_template('login.html')
+
+@app.route('/change-password', methods=['GET', 'POST'])
+def change_password():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if not current_password or not new_password or not confirm_password:
+            return "All fields are required"
+
+        if new_password != confirm_password:
+            return "New passwords do not match"
+
+        if len(new_password) < 8:
+            return "New password must be at least 8 characters long"
+
+        user_id = session['user_id']
+
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT id, password FROM users WHERE email=?",
+            (user_id,)
+        )
+        user = cursor.fetchone()
+
+        if not user:
+            conn.close()
+            return "User not found"
+
+        stored_password = user[1]
+
+        # Verify the current password
+        if stored_password.startswith(("scrypt:", "pbkdf2:")):
+            password_valid = check_password_hash(
+                stored_password,
+                current_password
+            )
+        else:
+            password_valid = stored_password == current_password
+
+        if not password_valid:
+            conn.close()
+            return "Current password is incorrect"
+
+        # Save the new password securely
+        hashed_password = generate_password_hash(new_password)
+
+        cursor.execute(
+            "UPDATE users SET password=? WHERE id=?",
+            (hashed_password, user[0])
+        )
+
+        conn.commit()
+        conn.close()
+
+        return redirect('/')
+
+    return render_template('change_password.html')
 
 @app.route('/logout')
 def logout():
@@ -731,11 +823,7 @@ def init_db():
             name TEXT NOT NULL
         )
     """)
-    cursor.execute("""
-        INSERT OR IGNORE INTO users (email, password, name)
-        VALUES (?, ?, ?)
-    """, ("admin@example.com", "1234", "Admin"))
-
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
