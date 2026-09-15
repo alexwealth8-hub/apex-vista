@@ -1,9 +1,16 @@
 from dotenv import load_dotenv
 load_dotenv()
 import os
+import psycopg
+from psycopg_pool import ConnectionPool
+DATABASE_URL = os.getenv("DATABASE_URL")
+db_pool = ConnectionPool(
+    conninfo=DATABASE_URL,
+    min_size=1,
+    max_size=5
+)
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 import requests
-DB_NAME = "your_database.db"
 from flask import Flask, render_template, request, redirect, session
 import random
 from flask import Flask, render_template, request, session, jsonify
@@ -14,6 +21,48 @@ import uuid
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
+
+class PooledConnection:
+    def __init__(self, pool):
+        self.pool = pool
+        self.conn = pool.getconn()
+
+    def cursor(self, *args, **kwargs):
+        return self.conn.cursor(*args, **kwargs)
+
+    def commit(self):
+        return self.conn.commit()
+
+    def rollback(self):
+        return self.conn.rollback()
+
+    def close(self):
+        if self.conn is not None:
+            self.pool.putconn(self.conn)
+            self.conn = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            if exc_type:
+                self.conn.rollback()
+            else:
+                self.conn.commit()
+        finally:
+            self.close()
+
+    def __getattr__(self, name):
+        return getattr(self.conn, name)
+
+
+def get_db_connection():
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL is not set")
+
+    return PooledConnection(db_pool)
+
 @app.route('/paystack-test')
 def paystack_test():
     return "Paystack connection is ready!"
@@ -26,11 +75,11 @@ def initialize_paystack():
     user_id = session['user_id']
 
     # Get the user's cart
-    with sqlite3.connect(DB_NAME) as conn:
+    with get_db_connection() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT product_id, quantity FROM cart WHERE user=?",
+            "SELECT product_id, quantity FROM cart WHERE \"user\"=%s",
             (user_id,)
         )
         cart_rows = cursor.fetchall()
@@ -101,9 +150,12 @@ products = [
 ]
 
 def get_cart_count(user_id):
-    with sqlite3.connect(DB_NAME) as conn:
+    with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT SUM(quantity) FROM cart WHERE user=?", (user_id,))
+        cursor.execute(
+            "SELECT SUM(quantity) FROM cart WHERE \"user\"=%s",
+            (user_id,)
+        )
         result = cursor.fetchone()[0]
         return result if result else 0
 
@@ -130,28 +182,27 @@ def home():
     trending_products = shuffled[:6]
     new_arrivals = shuffled[6:12]
 
-    # Get logged-in user's ID
+       # Get logged-in user's ID
     user_id = session.get('user_id')
 
     cart_items = []
     cart_count = 0
+    rows = []
 
     if user_id:
-        conn = sqlite3.connect(DB_NAME)
-        c = conn.cursor()
+        with get_db_connection() as conn:
+            c = conn.cursor()
 
-        c.execute(
-            "SELECT product_id, quantity FROM cart WHERE user=?",
-            (user_id,)
-        )
+            c.execute(
+                "SELECT product_id, quantity FROM cart WHERE \"user\"=%s",
+                (user_id,)
+            )
 
-        rows = c.fetchall()
+            rows = c.fetchall()
 
-        conn.close()
+    product_map = {p['id']: p for p in products}
 
-        product_map = {p['id']: p for p in products}
-
-        for pid, qty in rows:
+    for pid, qty in rows:
             product = product_map.get(int(pid))
 
             if product:
@@ -210,14 +261,14 @@ def add_to_cart():
 
     user_id = session['user_id']
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute(
         """
         SELECT quantity
         FROM cart
-        WHERE user=? AND product_id=?
+        WHERE "user"=%s AND product_id=%s
         """,
         (user_id, product_id)
     )
@@ -229,8 +280,8 @@ def add_to_cart():
         cursor.execute(
             """
             UPDATE cart
-            SET quantity = quantity + ?
-            WHERE user=? AND product_id=?
+            SET quantity = quantity + %s
+            WHERE "user"=%s AND product_id=%s
             """,
             (quantity, user_id, product_id)
         )
@@ -239,8 +290,8 @@ def add_to_cart():
 
         cursor.execute(
             """
-            INSERT INTO cart (user, product_id, quantity)
-            VALUES (?, ?, ?)
+            INSERT INTO cart ("user", product_id, quantity)
+            VALUES (%s, %s, %s)
             """,
             (user_id, product_id, quantity)
         )
@@ -248,7 +299,7 @@ def add_to_cart():
     conn.commit()
 
     cursor.execute(
-        "SELECT SUM(quantity) FROM cart WHERE user=?",
+        "SELECT SUM(quantity) FROM cart WHERE \"user\"=%s",
         (user_id,)
     )
 
@@ -268,11 +319,11 @@ def register():
         password = request.form.get('password')
         name = request.form.get('name')
 
-        conn = sqlite3.connect(DB_NAME)
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT id FROM users WHERE email=?",
+            "SELECT id FROM users WHERE email=%s",
             (email,)
         )
         existing_user = cursor.fetchone()
@@ -285,7 +336,7 @@ def register():
         cursor.execute(
             """
             INSERT INTO users (email, password, name)
-            VALUES (?, ?, ?)
+            VALUES (%s, %s, %s)
             """,
             (email, hashed_password, name)
         )
@@ -303,11 +354,11 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        conn = sqlite3.connect(DB_NAME)
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT id, email, password, name FROM users WHERE email=?",
+            "SELECT id, email, password, name FROM users WHERE email=%s",
             (email,)
         )
         user = cursor.fetchone()
@@ -331,7 +382,7 @@ def login():
                     new_password = generate_password_hash(password)
 
                     cursor.execute(
-                        "UPDATE users SET password=? WHERE id=?",
+                        "UPDATE users SET password=%s WHERE id=%s",
                         (new_password, user[0])
                     )
                     conn.commit()
@@ -370,11 +421,11 @@ def change_password():
 
         user_id = session['user_id']
 
-        conn = sqlite3.connect(DB_NAME)
+        conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT id, password FROM users WHERE email=?",
+            "SELECT id, password FROM users WHERE email=%s",
             (user_id,)
         )
         user = cursor.fetchone()
@@ -402,7 +453,7 @@ def change_password():
         hashed_password = generate_password_hash(new_password)
 
         cursor.execute(
-            "UPDATE users SET password=? WHERE id=?",
+            "UPDATE users SET password=%s WHERE id=%s",
             (hashed_password, user[0])
         )
 
@@ -429,18 +480,21 @@ def remove_item():
     product_id = int(data.get('product_id'))
     user_id = session['user_id']
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute(
-        "DELETE FROM cart WHERE user=? AND product_id=?",
+        "DELETE FROM cart WHERE \"user\"=%s AND product_id=%s",
         (user_id, product_id)
     )
 
     conn.commit()
 
     # ✅ GET UPDATED CART BEFORE CLOSING
-    cursor.execute("SELECT product_id, quantity FROM cart WHERE user=?", (user_id,))
+    cursor.execute(
+    "SELECT product_id, quantity FROM cart WHERE \"user\"=%s",
+    (user_id,)
+)
     rows = cursor.fetchall()
 
     conn.close()
@@ -539,18 +593,18 @@ def update_quantity():
 
     removed_id = None
 
-    with sqlite3.connect(DB_NAME, timeout=10) as conn:
+    with get_db_connection() as conn:
         cursor = conn.cursor()
 
         if action == "increase":
             cursor.execute(
-                "UPDATE cart SET quantity = quantity + 1 WHERE user=? AND product_id=?",
+                'UPDATE cart SET quantity = quantity + 1 WHERE "user"=%s AND product_id=%s',
                 (user_id, product_id)
             )
 
         elif action == "decrease":
             cursor.execute(
-                "SELECT quantity FROM cart WHERE user=? AND product_id=?",
+                'SELECT quantity FROM cart WHERE "user"=%s AND product_id=%s',
                 (user_id, product_id)
             )
 
@@ -558,7 +612,7 @@ def update_quantity():
 
             if row and row[0] > 1:
                 cursor.execute(
-                    "UPDATE cart SET quantity = quantity - 1 WHERE user=? AND product_id=?",
+                    'UPDATE cart SET quantity = quantity - 1 WHERE "user"=%s AND product_id=%s',
                     (user_id, product_id)
                 )
 
@@ -567,7 +621,7 @@ def update_quantity():
 
         # GET UPDATED CART
         cursor.execute(
-            "SELECT product_id, quantity FROM cart WHERE user=?",
+            'SELECT product_id, quantity FROM cart WHERE "user"=%s',
             (user_id,)
         )
 
@@ -610,13 +664,13 @@ def cart():
 
     user_id = session['user_id']
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
         SELECT product_id, quantity
         FROM cart
-        WHERE user = ?
+        WHERE "user" = %s
     """, (user_id,))
 
     rows = cursor.fetchall()
@@ -651,12 +705,12 @@ def checkout():
 
     user_id = session["user_id"]
 
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # ✅ FIXED: use user_id
     cursor.execute(
-        "SELECT product_id, quantity FROM cart WHERE user = ?",
+        "SELECT product_id, quantity FROM cart WHERE \"user\" = %s",
         (user_id,)
     )
     cart_rows = cursor.fetchall()
@@ -722,11 +776,11 @@ def payment_callback():
     user_id = session["user_id"]
 
     # Get user's cart
-    with sqlite3.connect(DB_NAME) as conn:
+    with get_db_connection() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT product_id, quantity FROM cart WHERE user=?",
+            "SELECT product_id, quantity FROM cart WHERE \"user\"=%s",
             (user_id,)
         )
 
@@ -744,8 +798,8 @@ def payment_callback():
                 cursor.execute(
                     """
                     INSERT INTO orders
-                    (user, product_name, price, quantity, order_number)
-                    VALUES (?, ?, ?, ?, ?)
+                    ("user", product_name, price, quantity, order_number)
+                    VALUES (%s, %s, %s, %s, %s)
                     """,
                     (
                         user_id,
@@ -758,7 +812,7 @@ def payment_callback():
 
         # Clear cart after successful payment
         cursor.execute(
-            "DELETE FROM cart WHERE user=?",
+            "DELETE FROM cart WHERE \"user\"=%s",
             (user_id,)
         )
 
@@ -778,14 +832,14 @@ def orders():
 
     user_id = session["user_id"]
 
-    with sqlite3.connect(DB_NAME) as conn:
+    with get_db_connection() as conn:
         cursor = conn.cursor()
 
         cursor.execute(
             """
             SELECT id, product_name, price, quantity, order_number
             FROM orders
-            WHERE user=?
+            WHERE "user"=%s
             ORDER BY id DESC
             """,
             (user_id,)
@@ -803,47 +857,39 @@ def cancel():
     return "Payment Cancelled ❌"
 
 def init_db():
-    db = sqlite3.connect(DB_NAME)
-    cursor = db.cursor()
+    with get_db_connection() as db:
+        cursor = db.cursor()
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS cart (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user TEXT,
-        product_id TEXT,
-        quantity INTEGER
-    )
-    """)
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cart (
+            id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+            "user" TEXT,
+            product_id TEXT,
+            quantity INTEGER
+        )
+        """)
 
-    cursor.execute("""
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             name TEXT NOT NULL
         )
-    """)
-    
-    cursor.execute("""
+        """)
+
+        cursor.execute("""
         CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user TEXT,
+            id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+            "user" TEXT,
             product_name TEXT,
             price REAL,
-            quantity INTEGER
+            quantity INTEGER,
+            order_number TEXT
         )
         """)
-    cursor.execute("PRAGMA table_info(orders)")
-    columns = [column[1] for column in cursor.fetchall()]
 
-    if "order_number" not in columns:
-     cursor.execute(
-        "ALTER TABLE orders ADD COLUMN order_number TEXT"
-    )
-    
-
-    db.commit()
-    db.close()
+        db.commit()
 
 init_db()
 
