@@ -70,7 +70,7 @@ def initialize_paystack():
         "email": user_id,
         "amount": amount,
         "currency": "NGN",
-        "callback_url": "http://127.0.0.1:5000/payment/callback"
+        "callback_url": "https://apex-vista.onrender.com/payment/callback"
     }
 
     response = requests.post(
