@@ -2,13 +2,9 @@ from dotenv import load_dotenv
 load_dotenv()
 import os
 import psycopg
-from psycopg_pool import ConnectionPool
+
 DATABASE_URL = os.getenv("DATABASE_URL")
-db_pool = ConnectionPool(
-    conninfo=DATABASE_URL,
-    min_size=1,
-    max_size=5
-)
+
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 import requests
 from flask import Flask, render_template, request, redirect, session
@@ -22,46 +18,11 @@ import uuid
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
-class PooledConnection:
-    def __init__(self, pool):
-        self.pool = pool
-        self.conn = pool.getconn()
-
-    def cursor(self, *args, **kwargs):
-        return self.conn.cursor(*args, **kwargs)
-
-    def commit(self):
-        return self.conn.commit()
-
-    def rollback(self):
-        return self.conn.rollback()
-
-    def close(self):
-        if self.conn is not None:
-            self.pool.putconn(self.conn)
-            self.conn = None
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        try:
-            if exc_type:
-                self.conn.rollback()
-            else:
-                self.conn.commit()
-        finally:
-            self.close()
-
-    def __getattr__(self, name):
-        return getattr(self.conn, name)
-
-
 def get_db_connection():
     if not DATABASE_URL:
         raise RuntimeError("DATABASE_URL is not set")
 
-    return PooledConnection(db_pool)
+    return psycopg.connect(DATABASE_URL)
 
 @app.route('/paystack-test')
 def paystack_test():
