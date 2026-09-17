@@ -758,6 +758,15 @@ h2::after {
     gap: 24px;
 }
 
+@media (max-width: 600px) {
+
+    .all-products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+    }
+
+}
+
 /* 🔥 FIX IMAGE SIZE (VERY IMPORTANT) */
 .product-image-wrapper {
     width: 100%;
@@ -1452,3 +1461,642 @@ button {
     50% { transform: scale(1.2); }
     100% { transform: scale(1); }
 }
+/* =========================================================
+   APEX VISTA — MOBILE REDESIGN
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    /* =====================================================
+       GENERAL MOBILE
+       ===================================================== */
+
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+    .container {
+        width: 100%;
+        padding: 20px 14px;
+    }
+
+    .trending-section,
+    .new-arrivals {
+        width: 100%;
+        padding: 24px 14px;
+    }
+
+    h2,
+    .section-title {
+        font-size: 22px;
+        line-height: 1.3;
+        margin: 24px 0 14px;
+    }
+
+
+   /* =====================================================
+   MOBILE NAVBAR
+   Balanced layout with search inside navbar
+   ===================================================== */
+
+.navbar {
+    width: 100%;
+    padding: 10px 10px 58px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+
+    align-items: center;
+    gap: 8px;
+
+    min-width: 0;
+}
+
+/* -------------------------
+   LOGO
+   ------------------------- */
+
+.nav-left {
+    display: contents;
+}
+
+.logo {
+    min-width: 0;
+}
+
+.logo a {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+/* -------------------------
+   HOME / SHOP / MY ORDERS
+   ------------------------- */
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    width: 100%;
+    min-width: 0;
+
+    gap: 10px;
+    margin: 0;
+}
+
+.nav-links a {
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.nav-links a::after {
+    bottom: -4px;
+    height: 2px;
+}
+
+
+/* -------------------------
+   RIGHT SIDE
+   Wishlist / Account / Cart
+   ------------------------- */
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 9px;
+    flex-shrink: 0;
+}
+
+.icon-btn {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.cart-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+#user-section {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.hello-text,
+.account-text {
+    display: none;
+}
+
+.user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    font-size: 13px;
+}
+
+
+/* -------------------------
+   SEARCH
+   Search remains INSIDE
+   the navbar
+   ------------------------- */
+
+.nav-center {
+    position: absolute;
+
+    left: 10px;
+    right: 10px;
+    bottom: 9px;
+
+    display: flex;
+
+    width: auto;
+    min-width: 0;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    max-width: none;
+
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.search-box input {
+    flex: 1;
+    min-width: 0;
+
+    padding: 9px 11px;
+    font-size: 13px;
+}
+
+.search-box button {
+    flex: 0 0 auto;
+    padding: 9px 13px;
+}
+
+
+/* -------------------------
+   LOGIN / REGISTER
+   ------------------------- */
+
+.auth-links {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.login-btn,
+.register-btn {
+    padding: 5px 7px;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   VERY SMALL PHONES
+   ===================================================== */
+
+@media (max-width: 360px) {
+
+    .navbar {
+        padding: 9px 9px 56px;
+    }
+
+    .nav-container {
+        gap: 6px;
+    }
+
+    .logo a {
+        font-size: 15px;
+    }
+
+    .nav-links {
+        gap: 4px;
+    }
+
+    .nav-links a {
+        font-size: 10px;
+    }
+
+    .nav-right {
+        gap: 7px;
+    }
+
+    .icon-btn {
+        font-size: 17px;
+    }
+
+    .cart-icon {
+        font-size: 19px;
+    }
+
+    .search-box input {
+        font-size: 12px;
+        padding: 9px 10px;
+    }
+
+    .search-box button {
+        padding: 9px 11px;
+    }
+}
+
+    /* =====================================================
+       HERO
+       ===================================================== */
+
+    .hero {
+        width: 100%;
+        min-height: 250px;
+        height: auto;
+        padding: 34px 18px;
+    }
+
+    .hero-content {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .hero-content h1,
+    .hero h1 {
+        font-size: 29px;
+        line-height: 1.2;
+        margin-bottom: 12px;
+    }
+
+    .hero-content p,
+    .hero p {
+        font-size: 14px;
+        line-height: 1.55;
+        margin-bottom: 17px;
+    }
+
+    .hero-btn {
+        padding: 11px 23px;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       ALL PRODUCTS GRID
+       ===================================================== */
+
+    .all-products-grid {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px !important;
+    }
+
+
+    /* =====================================================
+       NORMAL PRODUCT GRID
+       ===================================================== */
+
+    .products-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+
+    /* =====================================================
+       PRODUCT CARDS
+       ===================================================== */
+
+    .product-card {
+        width: 100%;
+        min-width: 0;
+        padding: 10px;
+        border-radius: 14px;
+    }
+
+    .product-image-wrapper {
+        width: 100%;
+        height: 165px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .product-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-info {
+        width: 100%;
+        padding: 8px 2px 2px;
+        gap: 5px;
+    }
+
+    .product-info h3 {
+        font-size: 14px;
+        line-height: 1.35;
+        min-height: 38px;
+        margin: 0;
+    }
+
+    .product-info p {
+        font-size: 14px;
+        line-height: 1.3;
+        margin: 0;
+    }
+
+
+    /* -------------------------
+       RATINGS
+       ------------------------- */
+
+    .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        margin-top: 2px;
+    }
+
+    .stars {
+        font-size: 11px;
+        letter-spacing: 0;
+    }
+
+    .rating-count {
+        font-size: 10px;
+    }
+
+
+    /* -------------------------
+       PRODUCT ACTIONS
+       ------------------------- */
+
+    .product-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .wishlist-btn {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 9px;
+    }
+
+    .premium-cart-btn {
+        flex: 1;
+        min-width: 0;
+        min-height: 36px;
+        padding: 8px 6px;
+        font-size: 11px;
+        border-radius: 9px;
+        white-space: nowrap;
+    }
+
+
+    /* -------------------------
+       PRODUCT BADGES
+       ------------------------- */
+
+    .product-badge {
+        top: 7px;
+        left: 7px;
+        font-size: 9px;
+        padding: 3px 6px;
+        border-radius: 5px;
+    }
+
+
+    /* =====================================================
+       TRENDING PRODUCTS
+       ===================================================== */
+
+    .trending-products {
+        width: 100%;
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+    }
+
+    .trending-products::-webkit-scrollbar {
+        display: none;
+    }
+
+    .trending-card {
+        min-width: 175px;
+        max-width: 175px;
+        border-radius: 14px;
+        flex-shrink: 0;
+    }
+
+    .trending-card img {
+        width: 100%;
+        height: 175px;
+        object-fit: cover;
+    }
+
+    .trending-info {
+        padding: 9px;
+        gap: 5px;
+    }
+
+    .trending-info h4 {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .trending-info p {
+        font-size: 14px;
+        margin: 0;
+    }
+
+
+    /* =====================================================
+       NEW ARRIVALS
+       Horizontal scrolling
+       ===================================================== */
+
+    .new-arrivals-grid {
+        width: 100%;
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        padding-bottom: 5px;
+    }
+
+    .new-arrivals-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .scroll-wrapper .product-card {
+        flex: 0 0 185px;
+        max-width: 185px;
+        scroll-snap-align: start;
+    }
+
+    .scroll-wrapper .product-image-wrapper {
+        height: 160px;
+    }
+
+
+    /* =====================================================
+       SCROLL BUTTONS
+       ===================================================== */
+
+    .scroll-btn {
+        display: none !important;
+    }
+
+
+    /* =====================================================
+       SCROLL WRAPPER
+       ===================================================== */
+
+    .scroll-wrapper {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .scroll-wrapper::before,
+    .scroll-wrapper::after {
+        display: none;
+    }
+
+
+    /* =====================================================
+       CART PAGE
+       ===================================================== */
+
+    .cart-page {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px 14px;
+    }
+
+    .cart-container {
+        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin: 20px auto;
+        padding: 14px;
+    }
+
+    .cart-row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 0;
+    }
+
+    .cart-img {
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+        object-fit: cover;
+    }
+
+    .cart-details {
+        min-width: 0;
+    }
+
+    .cart-details h3 {
+        font-size: 14px;
+        line-height: 1.3;
+    }
+
+    .cart-subtotal {
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .cart-right,
+    .cart-summary {
+        width: 100%;
+        position: static;
+    }
+
+
+    /* =====================================================
+       CART DRAWER
+       ===================================================== */
+
+    .cart-drawer {
+        width: min(88vw, 320px);
+        right: -100vw;
+    }
+
+    .cart-drawer.open {
+        right: 0;
+    }
+
+    .cart-items {
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+
+    /* =====================================================
+       USER DROPDOWN
+       ===================================================== */
+
+    .dropdown-menu {
+        width: 190px;
+        right: -5px;
+    }
+
+
+    /* =====================================================
+       GENERAL BUTTON SAFETY
+       ===================================================== */
+
+    button {
+        max-width: 100%;
+    }
+
+}
+
