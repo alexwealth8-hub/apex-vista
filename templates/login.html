@@ -1,32 +1,809 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Sign In</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign In | Apex Vista</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            background: #071a3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        /* =========================
+           MAIN AUTH CONTAINER
+           ========================= */
+
+        .auth-container {
+            width: 100%;
+            max-width: 1050px;
+            min-height: 620px;
+
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.35);
+        }
+
+
+        /* =========================
+           LEFT PREMIUM BRAND PANEL
+           ========================= */
+
+        .brand-panel {
+            position: relative;
+            overflow: hidden;
+
+            padding: 55px;
+
+            background:
+                radial-gradient(
+                    circle at 85% 20%,
+                    rgba(43, 124, 255, 0.8),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 75% 75%,
+                    rgba(0, 174, 255, 0.35),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    145deg,
+                    #06163a,
+                    #0b2d70 55%,
+                    #0755c9
+                );
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+
+        /* Decorative circles */
+
+        .brand-panel::before {
+            content: "";
+            position: absolute;
+
+            width: 420px;
+            height: 420px;
+
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+
+            right: -170px;
+            top: -120px;
+        }
+
+        .brand-panel::after {
+            content: "";
+            position: absolute;
+
+            width: 300px;
+            height: 300px;
+
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 50%;
+
+            right: -80px;
+            bottom: -120px;
+        }
+
+
+        /* =========================
+           LOGO
+           ========================= */
+
+        .brand-logo {
+            position: relative;
+            z-index: 2;
+
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-logo span {
+            color: #45b9ff;
+        }
+
+
+        /* =========================
+           BRAND MESSAGE
+           ========================= */
+
+        .brand-content {
+            position: relative;
+            z-index: 2;
+
+            max-width: 480px;
+        }
+
+        .brand-label {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+
+            color: #6ec8ff;
+
+            margin-bottom: 18px;
+        }
+
+        .brand-content h1 {
+            font-size: 48px;
+            line-height: 1.08;
+
+            margin-bottom: 22px;
+        }
+
+        .brand-content h1 span {
+            color: #4dc1ff;
+        }
+
+        .brand-content p {
+            font-size: 17px;
+            line-height: 1.7;
+
+            color: rgba(255,255,255,0.82);
+
+            max-width: 430px;
+        }
+
+
+        /* =========================
+           BENEFITS
+           ========================= */
+
+        .benefits {
+            position: relative;
+            z-index: 2;
+
+            display: flex;
+            gap: 28px;
+
+            margin-top: 35px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-size: 13px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .benefit-icon {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255,255,255,0.12);
+
+            font-size: 16px;
+        }
+
+
+        /* =========================
+           TAGLINE
+           ========================= */
+
+        .tagline {
+            position: relative;
+            z-index: 2;
+
+            font-size: 20px;
+            font-style: italic;
+
+            color: #5bc7ff;
+        }
+
+
+        /* =========================
+           RIGHT FORM PANEL
+           ========================= */
+
+        .form-panel {
+            background: #ffffff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 55px;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 430px;
+        }
+
+
+        /* =========================
+           FORM HEADER
+           ========================= */
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+
+        .form-header h2 {
+            font-size: 34px;
+            color: #071a3d;
+
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #718096;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+
+        /* =========================
+           FORM FIELDS
+           ========================= */
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            color: #26364d;
+
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+
+            left: 16px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #7c8ba1;
+
+            font-size: 15px;
+        }
+
+        .form-group input {
+            width: 100%;
+
+            height: 54px;
+
+            border: 1px solid #d9e1ec;
+            border-radius: 12px;
+
+            padding: 0 16px 0 45px;
+
+            font-size: 15px;
+            color: #172b4d;
+
+            outline: none;
+
+            background: #fbfcfe;
+
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #2376ff;
+
+            background: white;
+
+            box-shadow:
+                0 0 0 4px rgba(35,118,255,0.10);
+        }
+
+
+        /* =========================
+           REMEMBER
+           ========================= */
+
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin: 5px 0 24px;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            font-size: 13px;
+            color: #637083;
+        }
+
+        .remember input {
+            width: 15px;
+            height: 15px;
+            accent-color: #2376ff;
+        }
+
+
+        /* =========================
+           SIGN IN BUTTON
+           ========================= */
+
+        .submit-btn {
+            width: 100%;
+            height: 56px;
+
+            border: none;
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #1559ff,
+                    #287fff
+                );
+
+            color: white;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 10px 25px rgba(21,89,255,0.25);
+
+            transition: transform 0.2s ease,
+                        box-shadow 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 14px 30px rgba(21,89,255,0.32);
+        }
+
+
+        /* =========================
+           DIVIDER
+           ========================= */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin: 25px 0;
+
+            color: #9aa6b5;
+
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+
+            flex: 1;
+
+            height: 1px;
+
+            background: #e4e9f0;
+        }
+
+
+        /* =========================
+           REGISTER LINK
+           ========================= */
+
+        .account-link {
+            text-align: center;
+
+            color: #718096;
+
+            font-size: 14px;
+
+            margin-top: 24px;
+        }
+
+        .account-link a {
+            color: #1559ff;
+
+            font-weight: 700;
+
+            text-decoration: none;
+        }
+
+        .account-link a:hover {
+            text-decoration: underline;
+        }
+
+
+        /* =========================
+           MOBILE
+           ========================= */
+
+        @media (max-width: 800px) {
+
+            body {
+                padding: 18px;
+                align-items: center;
+            }
+
+            .auth-container {
+                max-width: 520px;
+
+                min-height: auto;
+
+                display: block;
+
+                border-radius: 20px;
+            }
+
+            .brand-panel {
+                min-height: 270px;
+
+                padding: 28px 25px 30px;
+
+                justify-content: flex-start;
+            }
+
+            .brand-logo {
+                font-size: 20px;
+            }
+
+            .brand-content {
+                margin-top: 35px;
+            }
+
+            .brand-label {
+                font-size: 10px;
+                margin-bottom: 10px;
+            }
+
+            .brand-content h1 {
+                font-size: 30px;
+
+                margin-bottom: 10px;
+            }
+
+            .brand-content p {
+                font-size: 13px;
+
+                line-height: 1.5;
+
+                max-width: 330px;
+            }
+
+            .benefits {
+                display: none;
+            }
+
+            .tagline {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 30px 24px 32px;
+            }
+
+            .form-wrapper {
+                max-width: none;
+            }
+
+            .form-header {
+                margin-bottom: 25px;
+            }
+
+            .form-header h2 {
+                font-size: 27px;
+            }
+
+            .form-header p {
+                font-size: 14px;
+            }
+
+            .form-group {
+                margin-bottom: 17px;
+            }
+
+            .form-group input {
+                height: 54px;
+
+                font-size: 15px;
+            }
+
+            .submit-btn {
+                height: 55px;
+            }
+        }
+
+
+        /* =========================
+           SMALL PHONES
+           ========================= */
+
+        @media (max-width: 380px) {
+
+            body {
+                padding: 10px;
+            }
+
+            .auth-container {
+                border-radius: 16px;
+            }
+
+            .brand-panel {
+                min-height: 235px;
+
+                padding: 22px 20px 25px;
+            }
+
+            .brand-logo {
+                font-size: 18px;
+            }
+
+            .brand-content {
+                margin-top: 28px;
+            }
+
+            .brand-content h1 {
+                font-size: 26px;
+            }
+
+            .brand-content p {
+                font-size: 12px;
+            }
+
+            .form-panel {
+                padding: 25px 19px 28px;
+            }
+
+            .form-header h2 {
+                font-size: 25px;
+            }
+
+            .form-header p {
+                font-size: 13px;
+            }
+
+            .form-group input {
+                height: 52px;
+            }
+
+            .submit-btn {
+                height: 53px;
+            }
+        }
+    </style>
 </head>
-<body style="font-family: Arial; background:#121212; display:flex; justify-content:center; align-items:center; height:100vh;">
 
-    <div style="background:white; padding:30px; border-radius:10px; width:300px; box-shadow:0 0 15px rgba(0,0,0,0.3); text-align:center;">
+<body>
 
-        <h2>Sign In</h2>
+    <main class="auth-container">
 
-        <form method="POST">
-            <input type="email" name="email" placeholder="Email" required
-                   style="width:100%; padding:10px; margin:10px 0;"><br>
+        <!-- =========================
+             PREMIUM BRAND PANEL
+             ========================= -->
 
-            <input type="password" name="password" placeholder="Password" required
-                   style="width:100%; padding:10px; margin:10px 0;"><br>
+        <section class="brand-panel">
 
-            <button type="submit"
-                    style="width:100%; padding:10px; background:#007BFF; color:white; border:none; border-radius:5px;">
-                Sign In
-            </button>
-        </form>
+            <div class="brand-logo">
+                APEX <span>VISTA</span>
+            </div>
 
-        <p style="margin-top:15px;">
-            Don't have an account? <a href="/register">Register</a>
-        </p>
 
-    </div>
+            <div class="brand-content">
+
+                <div class="brand-label">
+                    WELCOME BACK
+                </div>
+
+                <h1>
+                    Better Products.<br>
+                    A <span>Brighter You.</span>
+                </h1>
+
+                <p>
+                    Discover premium products crafted for
+                    comfort, performance, and elegance.
+                </p>
+
+
+                <div class="benefits">
+
+                    <div class="benefit">
+                        <div class="benefit-icon">★</div>
+                        <span>Premium Quality</span>
+                    </div>
+
+                    <div class="benefit">
+                        <div class="benefit-icon">✓</div>
+                        <span>Secure Shopping</span>
+                    </div>
+
+                    <div class="benefit">
+                        <div class="benefit-icon">◆</div>
+                        <span>Fast Delivery</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="tagline">
+                Shop Smarter. Live Better.
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             LOGIN FORM
+             ========================= -->
+
+        <section class="form-panel">
+
+            <div class="form-wrapper">
+
+                <div class="form-header">
+
+                    <h2>Welcome Back</h2>
+
+                    <p>
+                        Sign in to your account and continue
+                        your premium shopping experience.
+                    </p>
+
+                </div>
+
+
+                <form method="POST">
+
+                    <!-- EMAIL -->
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">✉</span>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="Enter your email address"
+                                required
+                                autocomplete="email"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+
+                    <div class="form-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">🔒</span>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                                autocomplete="current-password"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REMEMBER -->
+
+                    <div class="form-options">
+
+                        <label class="remember">
+
+                            <input
+                                type="checkbox"
+                                name="remember"
+                            >
+
+                            <span>Remember me</span>
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- BUTTON -->
+
+                    <button
+                        type="submit"
+                        class="submit-btn"
+                    >
+                        Sign In →
+                    </button>
+
+                </form>
+
+
+                <!-- DIVIDER -->
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+
+                <!-- REGISTER -->
+
+                <div class="account-link">
+
+                    Don't have an account?
+
+                    <a href="/register">
+                        Create Account
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
 
 </body>
 </html>
