@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Apex Vista Admin</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 250px;
+            background: #101827;
+            color: white;
+            padding: 28px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 0 12px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand h1 {
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+
+        .brand p {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #9ca8bb;
+            letter-spacing: 1.5px;
+        }
+
+        .menu {
+            margin-top: 28px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            color: #738097;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 12px 12px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            color: #b9c3d4;
+            text-decoration: none;
+            border-radius: 9px;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #1d2a3d;
+            color: white;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 18px;
+        }
+
+        .sidebar-bottom a {
+            display: block;
+            color: #aeb8c9;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        /* =========================
+           TOP BAR
+        ========================= */
+
+        .topbar {
+            height: 76px;
+            background: white;
+            border-bottom: 1px solid #e8ecf2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+
+        .topbar-left h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .topbar-left p {
+            color: #7c8799;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #172033;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .profile-text strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .profile-text span {
+            display: block;
+            color: #8993a4;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 32px;
+        }
+
+        .welcome {
+            margin-bottom: 26px;
+        }
+
+        .welcome h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .welcome p {
+            color: #7b8698;
+            margin-top: 7px;
+            font-size: 14px;
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e8ecf2;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(20, 30, 50, 0.03);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            color: #7d889a;
+            font-size: 12px;
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #f0f3f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .stat-number {
+            font-size: 27px;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        .stat-change {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #7d889a;
+        }
+
+        /* =========================
+           DASHBOARD GRID
+        ========================= */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e8ecf2;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(20, 30, 50, 0.03);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .panel-header a {
+            font-size: 12px;
+            color: #53657d;
+            text-decoration: none;
+        }
+
+        /* =========================
+           ORDERS
+        ========================= */
+
+        .order-row {
+            display: grid;
+            grid-template-columns: 1.2fr 1.5fr 1fr 0.8fr;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid #eef1f5;
+            font-size: 12px;
+        }
+
+        .order-row:last-child {
+            border-bottom: none;
+        }
+
+        .order-number {
+            font-weight: 600;
+        }
+
+        .customer {
+            color: #687589;
+        }
+
+        .amount {
+            font-weight: 600;
+        }
+
+        .status {
+            display: inline-block;
+            background: #eef7f1;
+            color: #3f7755;
+            padding: 5px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        /* =========================
+           QUICK ACTIONS
+        ========================= */
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action {
+            border: 1px solid #e7ebf1;
+            border-radius: 11px;
+            padding: 17px;
+            text-decoration: none;
+            color: #172033;
+            transition: 0.2s ease;
+        }
+
+        .action:hover {
+            border-color: #cbd3df;
+            transform: translateY(-1px);
+        }
+
+        .action-icon {
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .action strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .action span {
+            display: block;
+            color: #7f8a9c;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .admin-layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 18px;
+            }
+
+            .brand {
+                padding-bottom: 18px;
+            }
+
+            .menu {
+                margin-top: 15px;
+            }
+
+            .menu a {
+                display: inline-flex;
+                width: auto;
+                margin-right: 5px;
+                padding: 9px 10px;
+            }
+
+            .menu-title {
+                display: none;
+            }
+
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                height: auto;
+                padding: 18px;
+            }
+
+            .profile-text {
+                display: none;
+            }
+
+            .content {
+                padding: 18px;
+            }
+
+            .welcome h1 {
+                font-size: 23px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-number {
+                font-size: 22px;
+            }
+
+            .dashboard-grid {
+                gap: 15px;
+            }
+
+            .order-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 7px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 400px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar-left h2 {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h1>APEX VISTA</h1>
+            <p>ADMINISTRATION</p>
+        </div>
+
+        <nav class="menu">
+
+            <div class="menu-title">
+                Main Menu
+            </div>
+
+            <a href="/admin" class="active">
+                <span class="menu-icon">⌂</span>
+                Dashboard
+            </a>
+
+           <a href="/admin/products">
+                <span class="menu-icon">▣</span>
+                Products
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">🛒</span>
+                Orders
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">♙</span>
+                Customers
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">▥</span>
+                Analytics
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">◫</span>
+                Inventory
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="/">← Back to Store</a>
+            <a href="/logout">↪ Logout</a>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <h2>Dashboard</h2>
+                <p>Apex Vista administration</p>
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="profile-avatar">
+                    A
+                </div>
+
+                <div class="profile-text">
+                    <strong>Administrator</strong>
+                    <span>Store Manager</span>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+            <div class="welcome">
+
+                <h1>Welcome back 👋</h1>
+
+                <p>
+                    Here's an overview of your Apex Vista store.
+                </p>
+
+            </div>
+
+
+            <!-- STATISTICS -->
+
+            <div class="stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            Total Products
+                        </span>
+
+                        <div class="stat-icon">
+                            📦
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        {{ total_products }}
+                    </div>
+
+                    <div class="stat-change">
+                        Products in catalogue
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            Total Orders
+                        </span>
+
+                        <div class="stat-icon">
+                            🛒
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        {{ total_orders }}
+                    </div>
+
+                    <div class="stat-change">
+                        Orders recorded
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            Customers
+                        </span>
+
+                        <div class="stat-icon">
+                            👥
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        {{ total_customers }}
+                    </div>
+
+                    <div class="stat-change">
+                        Registered accounts
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <span class="stat-label">
+                            Inventory
+                        </span>
+
+                        <div class="stat-icon">
+                            📊
+                        </div>
+
+                    </div>
+
+                    <div class="stat-number">
+                        {{ total_inventory }}
+                    </div>
+
+                    <div class="stat-change">
+                        Units currently available
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOWER DASHBOARD -->
+
+            <div class="dashboard-grid">
+
+
+                <!-- RECENT ORDERS -->
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <h3>Recent Orders</h3>
+
+        <a href="#">
+            View all
+        </a>
+
+    </div>
+
+
+    {% if recent_orders %}
+
+        {% for order in recent_orders %}
+
+            <div class="order-row">
+
+                <span class="order-number">
+                    {{ order[0] }}
+                </span>
+
+                <span class="customer">
+                    {{ order[1] }}
+                </span>
+
+                <span class="amount">
+                    ₦{{ "{:,.0f}".format(order[2]) }}
+                </span>
+
+                <span class="status">
+                    Paid
+                </span>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div style="padding: 30px 0; text-align: center; color: #7d889a; font-size: 13px;">
+            No orders yet.
+        </div>
+
+    {% endif %}
+
+</div>
+
+                <!-- QUICK ACTIONS -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h3>Quick Actions</h3>
+
+                    </div>
+
+
+                    <div class="quick-actions">
+
+                        <a href="/admin/products/add" class="action">
+
+                            <div class="action-icon">
+                                ＋
+                            </div>
+
+                            <strong>
+                                Add Product
+                            </strong>
+
+                            <span>
+                                Create a new product
+                            </span>
+
+                        </a>
+
+
+                        <a href="#" class="action">
+
+                            <div class="action-icon">
+                                ✎
+                            </div>
+
+                            <strong>
+                                Manage Products
+                            </strong>
+
+                            <span>
+                                Edit your catalogue
+                            </span>
+
+                        </a>
+
+
+                        <a href="#" class="action">
+
+                            <div class="action-icon">
+                                🛒
+                            </div>
+
+                            <strong>
+                                View Orders
+                            </strong>
+
+                            <span>
+                                Manage customer orders
+                            </span>
+
+                        </a>
+
+
+                        <a href="#" class="action">
+
+                            <div class="action-icon">
+                                📦
+                            </div>
+
+                            <strong>
+                                Check Inventory
+                            </strong>
+
+                            <span>
+                                Monitor stock levels
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

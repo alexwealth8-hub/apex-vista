@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Product | Apex Vista Admin</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 250px;
+            background: #101827;
+            color: white;
+            padding: 28px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 0 12px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand h1 {
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+
+        .brand p {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #9ca8bb;
+            letter-spacing: 1.5px;
+        }
+
+        .menu {
+            margin-top: 28px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            color: #738097;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 12px 12px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            color: #b9c3d4;
+            text-decoration: none;
+            border-radius: 9px;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #1d2a3d;
+            color: white;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 18px;
+        }
+
+        .sidebar-bottom a {
+            display: block;
+            color: #aeb8c9;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        /* TOPBAR */
+
+        .topbar {
+            height: 76px;
+            background: white;
+            border-bottom: 1px solid #e8ecf2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+
+        .topbar-left h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .topbar-left p {
+            color: #7c8799;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #172033;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .profile-text strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .profile-text span {
+            display: block;
+            color: #8993a4;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* CONTENT */
+
+        .content {
+            padding: 32px;
+            max-width: 1100px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .page-heading p {
+            color: #7b8698;
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        /* FORM */
+
+        .form-panel {
+            background: white;
+            border: 1px solid #e8ecf2;
+            border-radius: 15px;
+            padding: 28px;
+            box-shadow: 0 3px 12px rgba(20, 30, 50, 0.03);
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eef1f5;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 7px;
+            color: #3d485a;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #dfe4ec;
+            border-radius: 9px;
+            padding: 12px 13px;
+            font-family: inherit;
+            font-size: 13px;
+            color: #172033;
+            background: white;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #8f9bae;
+        }
+
+        textarea {
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .field-help {
+            margin-top: 6px;
+            color: #929baa;
+            font-size: 10px;
+        }
+
+        /* ACTIONS */
+
+        .form-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+            padding-top: 22px;
+            border-top: 1px solid #eef1f5;
+        }
+
+        .cancel-btn,
+        .save-btn {
+            border-radius: 9px;
+            padding: 12px 18px;
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            color: #5e6a7d;
+            background: #f1f3f6;
+        }
+
+        .save-btn {
+            border: none;
+            background: #172033;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #243149;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .admin-layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 18px;
+            }
+
+            .brand {
+                padding-bottom: 18px;
+            }
+
+            .menu {
+                margin-top: 15px;
+                white-space: nowrap;
+                overflow-x: auto;
+                padding-bottom: 3px;
+            }
+
+            .menu-title {
+                display: none;
+            }
+
+            .menu a {
+                display: inline-flex;
+                width: auto;
+                margin-right: 5px;
+                padding: 9px 10px;
+            }
+
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                height: auto;
+                padding: 18px;
+            }
+
+            .profile-text {
+                display: none;
+            }
+
+            .content {
+                padding: 18px;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .form-panel {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .cancel-btn,
+            .save-btn {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h1>APEX VISTA</h1>
+            <p>ADMINISTRATION</p>
+        </div>
+
+        <nav class="menu">
+
+            <div class="menu-title">
+                Main Menu
+            </div>
+
+            <a href="/admin">
+                <span class="menu-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="/admin/products" class="active">
+                <span class="menu-icon">▣</span>
+                Products
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">🛒</span>
+                Orders
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">♙</span>
+                Customers
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">▥</span>
+                Analytics
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">◫</span>
+                Inventory
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="/">← Back to Store</a>
+            <a href="/logout">↪ Logout</a>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <h2>Add Product</h2>
+                <p>Create a new product for your catalogue</p>
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="profile-avatar">
+                    A
+                </div>
+
+                <div class="profile-text">
+                    <strong>Administrator</strong>
+                    <span>Store Manager</span>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+            <div class="page-heading">
+
+                <h1>Add Product</h1>
+
+                <p>
+                    Add a new product to the Apex Vista catalogue.
+                </p>
+
+            </div>
+
+
+            <form
+                class="form-panel"
+                method="POST"
+                action="/admin/products/add"
+            >
+
+                <!-- BASIC INFORMATION -->
+
+                <div class="form-section">
+
+                    <div class="section-title">
+                        Basic Information
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="name">
+                                Product Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                placeholder="e.g. Wireless Keyboard"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="price">
+                                Price (₦)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="price"
+                                name="price"
+                                min="0"
+                                step="0.01"
+                                placeholder="65000"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="category">
+                                Category
+                            </label>
+
+                            <select
+                                id="category"
+                                name="category"
+                                required
+                            >
+
+                                <option value="">
+                                    Select category
+                                </option>
+
+                                <option value="Electronics">
+                                    Electronics
+                                </option>
+
+                                <option value="Footwear">
+                                    Footwear
+                                </option>
+
+                                <option value="Fashion">
+                                    Fashion
+                                </option>
+
+                                <option value="Accessories">
+                                    Accessories
+                                </option>
+
+                                <option value="General">
+                                    General
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="stock">
+                                Stock Quantity
+                            </label>
+
+                            <input
+                                type="number"
+                                id="stock"
+                                name="stock"
+                                min="0"
+                                placeholder="20"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PRODUCT DETAILS -->
+
+                <div class="form-section">
+
+                    <div class="section-title">
+                        Product Details
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group full">
+
+                            <label for="description">
+                                Description
+                            </label>
+
+                            <textarea
+                                id="description"
+                                name="description"
+                                placeholder="Describe the product..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="rating">
+                                Rating
+                            </label>
+
+                            <select
+                                id="rating"
+                                name="rating"
+                            >
+
+                                <option value="0">
+                                    No Rating
+                                </option>
+
+                                <option value="1">
+                                    ★ 1
+                                </option>
+
+                                <option value="2">
+                                    ★★ 2
+                                </option>
+
+                                <option value="3">
+                                    ★★★ 3
+                                </option>
+
+                                <option value="4">
+                                    ★★★★ 4
+                                </option>
+
+                                <option value="5">
+                                    ★★★★★ 5
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="tag">
+                                Product Tag
+                            </label>
+
+                            <select
+                                id="tag"
+                                name="tag"
+                            >
+
+                                <option value="">
+                                    No Tag
+                                </option>
+
+                                <option value="new">
+                                    New
+                                </option>
+
+                                <option value="sale">
+                                    Sale
+                                </option>
+
+                                <option value="hot">
+                                    Hot
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- IMAGE -->
+
+                <div class="form-section">
+
+                    <div class="section-title">
+                        Product Image
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group full">
+
+                            <label for="image">
+                                Image Filename
+                            </label>
+
+                            <input
+                                type="text"
+                                id="image"
+                                name="image"
+                                placeholder="e.g. keyboard.jpg"
+                            >
+
+                            <span class="field-help">
+                                Place the actual image inside
+                                static/images/ using the same filename.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="form-actions">
+
+                    <a
+                        href="/admin/products"
+                        class="cancel-btn"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="save-btn"
+                    >
+                        Save Product
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

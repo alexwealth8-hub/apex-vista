@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Products | Apex Vista Admin</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            width: 250px;
+            background: #101827;
+            color: white;
+            padding: 28px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 0 12px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand h1 {
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+
+        .brand p {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #9ca8bb;
+            letter-spacing: 1.5px;
+        }
+
+        .menu {
+            margin-top: 28px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            color: #738097;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 12px 12px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            color: #b9c3d4;
+            text-decoration: none;
+            border-radius: 9px;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #1d2a3d;
+            color: white;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 18px;
+        }
+
+        .sidebar-bottom a {
+            display: block;
+            color: #aeb8c9;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        /* =========================
+           TOP BAR
+        ========================= */
+
+        .topbar {
+            height: 76px;
+            background: white;
+            border-bottom: 1px solid #e8ecf2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+
+        .topbar-left h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .topbar-left p {
+            color: #7c8799;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #172033;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .profile-text strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .profile-text span {
+            display: block;
+            color: #8993a4;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 32px;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .page-heading p {
+            color: #7b8698;
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        .add-product-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #172033;
+            color: white;
+            text-decoration: none;
+            padding: 12px 17px;
+            border-radius: 9px;
+            font-size: 13px;
+        }
+
+        .add-product-btn:hover {
+            background: #243149;
+        }
+
+        /* =========================
+           TOOLBAR
+        ========================= */
+
+        .toolbar {
+            background: white;
+            border: 1px solid #e8ecf2;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 420px;
+        }
+
+        .search-box input {
+            width: 100%;
+            border: 1px solid #dfe4ec;
+            border-radius: 9px;
+            padding: 11px 14px 11px 38px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .search-box input:focus {
+            border-color: #9aa7ba;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8994a6;
+            font-size: 14px;
+        }
+
+        .filter-select {
+            border: 1px solid #dfe4ec;
+            border-radius: 9px;
+            padding: 11px 13px;
+            background: white;
+            color: #4d596b;
+            font-size: 13px;
+            outline: none;
+        }
+
+        /* =========================
+           PRODUCT TABLE
+        ========================= */
+
+        .products-panel {
+            background: white;
+            border: 1px solid #e8ecf2;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(20, 30, 50, 0.03);
+        }
+
+        .table-header,
+        .product-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 0.7fr 0.7fr 0.7fr;
+            align-items: center;
+            gap: 18px;
+            padding: 20px 0;
+            border-bottom: 1px solid #eef1f5;
+        }
+
+        .table-header {
+            background: #fafbfd;
+            border-bottom: 1px solid #e8ecf2;
+            color: #7b8698;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .product-row {
+            min-height: 82px;
+            border-bottom: 1px solid #eef1f5;
+            font-size: 13px;
+        }
+
+        .product-row:last-child {
+            border-bottom: none;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-width: 0;
+        }
+
+        .product-image {
+            width: 55px;
+            height: 55px;
+            border-radius: 9px;
+            object-fit: cover;
+            background: #f0f2f6;
+            border: 1px solid #e8ecf2;
+            flex-shrink: 0;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #172033;
+        }
+
+        .product-category {
+            color: #8994a6;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .price {
+            font-weight: 600;
+        }
+
+        .rating {
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .stock {
+            font-size: 12px;
+        }
+
+        .stock.good {
+            color: #3f7755;
+        }
+
+        .stock.low {
+            color: #a26a27;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #f0f3f7;
+            color: #5e6a7d;
+            padding: 5px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .no-tag {
+            color: #a1a9b6;
+            font-size: 11px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+    .sidebar {
+        width: 210px;
+    }
+
+    .main {
+        margin-left: 210px;
+        width: calc(100% - 210px);
+    }
+
+    .products-panel {
+        overflow-x: auto;
+    }
+
+    .table-header,
+    .product-row {
+        min-width: 900px;
+    }
+}
+
+        @media (max-width: 650px) {
+
+            .admin-layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 18px;
+            }
+
+            .brand {
+                padding-bottom: 18px;
+            }
+
+            .menu {
+                margin-top: 15px;
+                white-space: nowrap;
+                overflow-x: auto;
+                padding-bottom: 3px;
+            }
+
+            .menu-title {
+                display: none;
+            }
+
+            .menu a {
+                display: inline-flex;
+                width: auto;
+                margin-right: 5px;
+                padding: 9px 10px;
+            }
+
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                height: auto;
+                padding: 18px;
+            }
+
+            .profile-text {
+                display: none;
+            }
+
+            .content {
+                padding: 18px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .add-product-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .products-panel {
+                overflow-x: auto;
+            }
+
+            .table-header,
+            .product-row {
+                min-width: 650px;
+            }
+        }
+
+        .edit-btn {
+    display: inline-block;
+    padding: 7px 12px;
+    background: #172033;
+    color: white;
+    text-decoration: none;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.edit-btn:hover {
+    background: #26344d;
+}
+
+.delete-btn {
+    display: inline-block;
+    padding: 7px 12px;
+    background: #fff1f1;
+    color: #b42318;
+    border: 1px solid #f3c4c0;
+    text-decoration: none;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.delete-btn:hover {
+    background: #ffe3e1;
+    border-color: #e9aaa5;
+}
+    </style>
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <h1>APEX VISTA</h1>
+            <p>ADMINISTRATION</p>
+        </div>
+
+        <nav class="menu">
+
+            <div class="menu-title">
+                Main Menu
+            </div>
+
+            <a href="/admin">
+                <span class="menu-icon">⌂</span>
+                Dashboard
+            </a>
+
+            <a href="/admin/products" class="active">
+                <span class="menu-icon">▣</span>
+                Products
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">🛒</span>
+                Orders
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">♙</span>
+                Customers
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">▥</span>
+                Analytics
+            </a>
+
+            <a href="#">
+                <span class="menu-icon">◫</span>
+                Inventory
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <a href="/">← Back to Store</a>
+            <a href="/logout">↪ Logout</a>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <h2>Products</h2>
+                <p>Manage your product catalogue</p>
+            </div>
+
+            <div class="admin-profile">
+
+                <div class="profile-avatar">
+                    A
+                </div>
+
+                <div class="profile-text">
+                    <strong>Administrator</strong>
+                    <span>Store Manager</span>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+            <!-- PAGE HEADING -->
+
+            <div class="page-heading">
+
+                <div>
+                    <h1>Products</h1>
+
+                    <p>
+                        Manage products, pricing, categories and stock.
+                    </p>
+                </div>
+
+                <a href="/admin/products/add" class="add-product-btn">
+                    ＋ Add Product
+                </a>
+
+            </div>
+
+
+            <!-- TOOLBAR -->
+
+            <div class="toolbar">
+
+                <div class="search-box">
+
+                    <span class="search-icon">⌕</span>
+
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                    >
+
+                </div>
+
+
+                <select class="filter-select">
+
+                    <option>
+                        All Categories
+                    </option>
+
+                    <option>
+                        Electronics
+                    </option>
+
+                    <option>
+                        Footwear
+                    </option>
+
+                    <option>
+                        Fashion
+                    </option>
+
+                    <option>
+                        Accessories
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- PRODUCTS -->
+
+            <div class="products-panel">
+
+                <div class="table-header">
+
+                    <span>Product</span>
+                    <span>Price</span>
+                    <span>Category</span>
+                    <span>Stock</span>
+                    <span>Tag</span>
+                    <span>Actions</span>
+
+                </div>
+
+
+                {% for product in products %}
+
+                <div class="product-row">
+
+                    <div class="product-info">
+
+                        <img
+                            src="{{ url_for('static', filename='images/' + product.image) }}"
+                            alt="{{ product.name }}"
+                            class="product-image"
+                        >
+
+                        <div>
+
+                            <div class="product-name">
+                                {{ product.name }}
+                            </div>
+
+                            <div class="product-category">
+                                Product #{{ product.id }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <span class="price">
+                        ₦{{ "{:,.0f}".format(product.price) }}
+                    </span>
+
+
+                    <span>
+                        {{ product.category }}
+                    </span>
+
+
+                    {% if product.stock > 10 %}
+
+                        <span class="stock good">
+                            {{ product.stock }}
+                        </span>
+
+                    {% else %}
+
+                        <span class="stock low">
+                            {{ product.stock }}
+                        </span>
+
+                    {% endif %}
+
+
+                    <span>
+
+                        {% if product.tag %}
+
+                            <span class="tag">
+                                {{ product.tag }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="no-tag">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </span>
+                                        <a
+                        <a
+    href="/admin/products/edit/{{ product.id }}"
+    class="edit-btn"
+>
+    Edit
+</a>
+
+<form
+    action="/admin/products/delete/{{ product.id }}"
+    method="POST"
+    onsubmit="return confirm('Are you sure you want to delete {{ product.name }}?');"
+    style="display: inline;"
+>
+    <button type="submit" class="delete-btn">
+        Delete
+    </button>
+</form>
+                    
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Product — Apex Vista</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 250px;
+            background: #101827;
+            color: white;
+            padding: 28px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            padding: 0 12px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand h1 {
+            font-size: 22px;
+            letter-spacing: 2px;
+        }
+
+        .brand p {
+            margin-top: 5px;
+            font-size: 11px;
+            color: #9ca8bb;
+            letter-spacing: 1.5px;
+        }
+
+        .menu {
+            margin-top: 28px;
+        }
+
+        .menu-title {
+            font-size: 10px;
+            color: #738097;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 12px 12px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 12px;
+            margin-bottom: 5px;
+            color: #b9c3d4;
+            text-decoration: none;
+            border-radius: 9px;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #1d2a3d;
+            color: white;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 18px;
+        }
+
+        .sidebar-bottom a {
+            display: block;
+            color: #aeb8c9;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 10px 12px;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        /* TOPBAR */
+
+        .topbar {
+            height: 76px;
+            background: white;
+            border-bottom: 1px solid #e8ecf2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+        }
+
+        .topbar-left h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .topbar-left p {
+            color: #7c8799;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #172033;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .profile-text strong {
+            display: block;
+            font-size: 13px;
+        }
+
+        .profile-text span {
+            display: block;
+            color: #8993a4;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* CONTENT */
+
+        .content {
+            padding: 32px;
+            max-width: 900px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .page-heading p {
+            margin-top: 7px;
+            color: #7b8698;
+            font-size: 14px;
+        }
+
+        /* FORM */
+
+        .form-panel {
+            background: white;
+            border: 1px solid #e8ecf2;
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: 0 3px 12px rgba(20, 30, 50, 0.03);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4f5d73;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #dfe4ec;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            color: #172033;
+            background: white;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #172033;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-help {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #8993a4;
+        }
+
+        /* BUTTONS */
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid #eef1f5;
+        }
+
+        .btn {
+            padding: 11px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-cancel {
+            background: #f0f2f6;
+            color: #536075;
+        }
+
+        .btn-save {
+            background: #172033;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #243149;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .admin-layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 18px;
+            }
+
+            .brand {
+                padding-bottom: 18px;
+            }
+
+            .menu {
+                margin-top: 15px;
+            }
+
+            .menu a {
+                display: inline-flex;
+                width: auto;
+                margin-right: 5px;
+                padding: 9px 10px;
+            }
+
+            .menu-title {
+                display: none;
+            }
+
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                height: auto;
+                padding: 18px;
+            }
+
+            .profile-text {
+                display: none;
+            }
+
+            .content {
+                padding: 18px;
+            }
+
+            .page-heading h1 {
+                font-size: 23px;
+            }
+
+            .form-panel {
+                padding: 20px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="admin-layout">
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <h1>APEX VISTA</h1>
+
+            <p>ADMINISTRATION</p>
+
+        </div>
+
+
+        <nav class="menu">
+
+            <div class="menu-title">
+                Main Menu
+            </div>
+
+
+            <a href="/admin">
+
+                <span class="menu-icon">⌂</span>
+
+                Dashboard
+
+            </a>
+
+
+            <a href="/admin/products" class="active">
+
+                <span class="menu-icon">▣</span>
+
+                Products
+
+            </a>
+
+
+            <a href="#">
+
+                <span class="menu-icon">🛒</span>
+
+                Orders
+
+            </a>
+
+
+            <a href="#">
+
+                <span class="menu-icon">♙</span>
+
+                Customers
+
+            </a>
+
+
+            <a href="#">
+
+                <span class="menu-icon">▥</span>
+
+                Analytics
+
+            </a>
+
+
+            <a href="#">
+
+                <span class="menu-icon">◫</span>
+
+                Inventory
+
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <a href="/">
+                ← Back to Store
+            </a>
+
+            <a href="/logout">
+                ↪ Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <h2>Edit Product</h2>
+
+                <p>Apex Vista administration</p>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="profile-avatar">
+                    A
+                </div>
+
+                <div class="profile-text">
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <span>
+                        Store Manager
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <section class="content">
+
+
+            <div class="page-heading">
+
+                <h1>
+                    Edit Product
+                </h1>
+
+                <p>
+                    Update the information for {{ product.name }}.
+                </p>
+
+            </div>
+
+
+
+            <form
+                class="form-panel"
+                method="POST"
+                action="/admin/products/edit/{{ product.id }}"
+            >
+
+
+                <div class="form-grid">
+
+
+                    <!-- PRODUCT NAME -->
+
+                    <div class="form-group full">
+
+                        <label for="name">
+                            Product Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value="{{ product.name }}"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- PRICE -->
+
+                    <div class="form-group">
+
+                        <label for="price">
+                            Price (₦)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="price"
+                            name="price"
+                            value="{{ product.price }}"
+                            min="1"
+                            step="0.01"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- CATEGORY -->
+
+                    <div class="form-group">
+
+                        <label for="category">
+                            Category
+                        </label>
+
+                        <select
+                            id="category"
+                            name="category"
+                            required
+                        >
+
+                            <option
+                                value="Electronics"
+                                {% if product.category == 'Electronics' %}selected{% endif %}
+                            >
+                                Electronics
+                            </option>
+
+                            <option
+                                value="Footwear"
+                                {% if product.category == 'Footwear' %}selected{% endif %}
+                            >
+                                Footwear
+                            </option>
+
+                            <option
+                                value="Fashion"
+                                {% if product.category == 'Fashion' %}selected{% endif %}
+                            >
+                                Fashion
+                            </option>
+
+                            <option
+                                value="Accessories"
+                                {% if product.category == 'Accessories' %}selected{% endif %}
+                            >
+                                Accessories
+                            </option>
+
+                            <option
+                                value="General"
+                                {% if product.category == 'General' %}selected{% endif %}
+                            >
+                                General
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- STOCK -->
+
+                    <div class="form-group">
+
+                        <label for="stock">
+                            Stock Quantity
+                        </label>
+
+                        <input
+                            type="number"
+                            id="stock"
+                            name="stock"
+                            value="{{ product.stock }}"
+                            min="0"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- RATING -->
+
+                    <div class="form-group">
+
+                        <label for="rating">
+                            Rating
+                        </label>
+
+                        <select
+                            id="rating"
+                            name="rating"
+                        >
+
+                            <option value="0" {% if product.rating == 0 %}selected{% endif %}>
+                                0 — No rating
+                            </option>
+
+                            <option value="1" {% if product.rating == 1 %}selected{% endif %}>
+                                1 — ★
+                            </option>
+
+                            <option value="2" {% if product.rating == 2 %}selected{% endif %}>
+                                2 — ★★
+                            </option>
+
+                            <option value="3" {% if product.rating == 3 %}selected{% endif %}>
+                                3 — ★★★
+                            </option>
+
+                            <option value="4" {% if product.rating == 4 %}selected{% endif %}>
+                                4 — ★★★★
+                            </option>
+
+                            <option value="5" {% if product.rating == 5 %}selected{% endif %}>
+                                5 — ★★★★★
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- TAG -->
+
+                    <div class="form-group">
+
+                        <label for="tag">
+                            Product Tag
+                        </label>
+
+                        <select
+                            id="tag"
+                            name="tag"
+                        >
+
+                            <option value="" {% if not product.tag %}selected{% endif %}>
+                                No tag
+                            </option>
+
+                            <option value="new" {% if product.tag == 'new' %}selected{% endif %}>
+                                New
+                            </option>
+
+                            <option value="sale" {% if product.tag == 'sale' %}selected{% endif %}>
+                                Sale
+                            </option>
+
+                            <option value="hot" {% if product.tag == 'hot' %}selected{% endif %}>
+                                Hot
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- IMAGE -->
+
+                    <div class="form-group full">
+
+                        <label for="image">
+                            Image Filename
+                        </label>
+
+                        <input
+                            type="text"
+                            id="image"
+                            name="image"
+                            value="{{ product.image }}"
+                        >
+
+                        <div class="form-help">
+                            Place the actual image inside static/images/ using the same filename.
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- DESCRIPTION -->
+
+                    <div class="form-group full">
+
+                        <label for="description">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                        >{{ product.description }}</textarea>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="form-actions">
+
+                    <a
+                        href="/admin/products"
+                        class="btn btn-cancel"
+                    >
+                        Cancel
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-save"
+                    >
+                        Save Changes
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+</body>
+
+</html>

@@ -90,6 +90,413 @@ def initialize_paystack():
         "error": result.get("message", "Payment initialization failed")
     }), 400
 
+@app.route('/admin')
+def admin_dashboard():
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user_id = session['user_id']
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # Check admin access
+        cursor.execute(
+            """
+            SELECT is_admin
+            FROM users
+            WHERE email=%s
+            """,
+            (user_id,)
+        )
+
+        row = cursor.fetchone()
+
+        if not row or not row[0]:
+            return "Access denied", 403
+
+        # Total products
+        cursor.execute(
+            "SELECT COUNT(*) FROM products"
+        )
+        total_products = cursor.fetchone()[0]
+
+        # Total orders
+        cursor.execute(
+            "SELECT COUNT(DISTINCT order_number) FROM orders"
+        )
+        total_orders = cursor.fetchone()[0]
+
+        # Total customers
+        cursor.execute(
+            "SELECT COUNT(*) FROM users"
+        )
+        total_customers = cursor.fetchone()[0]
+
+                # Total inventory units
+        cursor.execute(
+            "SELECT COALESCE(SUM(stock), 0) FROM products"
+        )
+        total_inventory = cursor.fetchone()[0]
+
+        # Recent orders
+        cursor.execute(
+            """
+            SELECT
+                order_number,
+                "user",
+                SUM(price * quantity) AS total_amount,
+                MAX(id) AS latest_id
+            FROM orders
+            GROUP BY order_number, "user"
+            ORDER BY latest_id DESC
+            LIMIT 5
+            """
+        )
+
+        recent_orders = cursor.fetchall()
+
+    return render_template(
+        "admin.html",
+        total_products=total_products,
+        total_orders=total_orders,
+        total_customers=total_customers,
+        total_inventory=total_inventory,
+        recent_orders=recent_orders
+    )
+
+@app.route('/admin/products')
+def admin_products():
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user_id = session['user_id']
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # Check admin access
+        cursor.execute(
+            """
+            SELECT is_admin
+            FROM users
+            WHERE email=%s
+            """,
+            (user_id,)
+        )
+
+        row = cursor.fetchone()
+
+        if not row or not row[0]:
+            return "Access denied", 403
+
+        # Get all products from Neon
+        cursor.execute(
+            """
+            SELECT id, name, price, image, rating, tag,
+                   category, description, stock
+            FROM products
+            ORDER BY id
+            """
+        )
+
+        rows = cursor.fetchall()
+
+    products = [
+        {
+            "id": row[0],
+            "name": row[1],
+            "price": float(row[2]),
+            "image": row[3],
+            "rating": row[4],
+            "tag": row[5],
+            "category": row[6],
+            "description": row[7],
+            "stock": row[8]
+        }
+        for row in rows
+    ]
+
+    return render_template(
+        "admin_products.html",
+        products=products
+    )
+
+@app.route('/admin/products/add', methods=['GET', 'POST'])
+def admin_add_product():
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user_id = session['user_id']
+
+    # Check admin access
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT is_admin
+            FROM users
+            WHERE email=%s
+            """,
+            (user_id,)
+        )
+
+        row = cursor.fetchone()
+
+        if not row or not row[0]:
+            return "Access denied", 403
+
+        # Handle form submission
+        if request.method == 'POST':
+
+            name = request.form.get('name', '').strip()
+            price = request.form.get('price', '').strip()
+            category = request.form.get('category', '').strip()
+            stock = request.form.get('stock', '').strip()
+            description = request.form.get('description', '').strip()
+            rating = request.form.get('rating', '0').strip()
+            tag = request.form.get('tag', '').strip()
+
+            image = request.form.get('image', '').strip()
+
+            # Basic validation
+            if not name or not price or not category or not stock:
+                return "Please complete all required fields.", 400
+
+            try:
+                price = float(price)
+                stock = int(stock)
+                rating = int(rating)
+            except ValueError:
+                return "Invalid price, stock, or rating.", 400
+
+            if price <= 0:
+                return "Price must be greater than zero.", 400
+
+            if stock < 0:
+                return "Stock cannot be negative.", 400
+
+            if rating < 0 or rating > 5:
+                return "Rating must be between 0 and 5.", 400
+
+            # Convert empty tag to NULL
+            if not tag:
+                tag = None
+
+            cursor.execute(
+                """
+                INSERT INTO products
+                (name, price, image, rating, tag, category, description, stock)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    name,
+                    price,
+                    image,
+                    rating,
+                    tag,
+                    category,
+                    description,
+                    stock
+                )
+            )
+
+            conn.commit()
+
+            return redirect('/admin/products')
+
+    return render_template('admin_add_product.html')
+
+@app.route('/admin/products/edit/<int:product_id>', methods=['GET', 'POST'])
+def admin_edit_product(product_id):
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user_id = session['user_id']
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # Check admin access
+        cursor.execute(
+            """
+            SELECT is_admin
+            FROM users
+            WHERE email=%s
+            """,
+            (user_id,)
+        )
+
+        row = cursor.fetchone()
+
+        if not row or not row[0]:
+            return "Access denied", 403
+
+        # Get the product
+        cursor.execute(
+            """
+            SELECT id, name, price, image, rating, tag,
+                   category, description, stock
+            FROM products
+            WHERE id=%s
+            """,
+            (product_id,)
+        )
+
+        product_row = cursor.fetchone()
+
+        if not product_row:
+            return "Product not found", 404
+
+        product = {
+            "id": product_row[0],
+            "name": product_row[1],
+            "price": float(product_row[2]),
+            "image": product_row[3],
+            "rating": product_row[4],
+            "tag": product_row[5],
+            "category": product_row[6],
+            "description": product_row[7],
+            "stock": product_row[8]
+        }
+
+        # Update product
+        if request.method == 'POST':
+
+            name = request.form.get('name', '').strip()
+            price = request.form.get('price', '').strip()
+            category = request.form.get('category', '').strip()
+            stock = request.form.get('stock', '').strip()
+            description = request.form.get('description', '').strip()
+            rating = request.form.get('rating', '0').strip()
+            tag = request.form.get('tag', '').strip()
+            image = request.form.get('image', '').strip()
+
+            if not name or not price or not category or not stock:
+                return "Please complete all required fields.", 400
+
+            try:
+                price = float(price)
+                stock = int(stock)
+                rating = int(rating)
+            except ValueError:
+                return "Invalid price, stock, or rating.", 400
+
+            if price <= 0:
+                return "Price must be greater than zero.", 400
+
+            if stock < 0:
+                return "Stock cannot be negative.", 400
+
+            if rating < 0 or rating > 5:
+                return "Rating must be between 0 and 5.", 400
+
+            if not tag:
+                tag = None
+
+            cursor.execute(
+                """
+                UPDATE products
+                SET
+                    name=%s,
+                    price=%s,
+                    image=%s,
+                    rating=%s,
+                    tag=%s,
+                    category=%s,
+                    description=%s,
+                    stock=%s
+                WHERE id=%s
+                """,
+                (
+                    name,
+                    price,
+                    image,
+                    rating,
+                    tag,
+                    category,
+                    description,
+                    stock,
+                    product_id
+                )
+            )
+
+            conn.commit()
+
+            return redirect('/admin/products')
+
+    return render_template(
+        'admin_edit_product.html',
+        product=product
+    )
+
+@app.route('/admin/products/delete/<int:product_id>', methods=['POST'])
+def admin_delete_product(product_id):
+
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user_id = session['user_id']
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        # Check admin access
+        cursor.execute(
+            """
+            SELECT is_admin
+            FROM users
+            WHERE email=%s
+            """,
+            (user_id,)
+        )
+
+        row = cursor.fetchone()
+
+        if not row or not row[0]:
+            return "Access denied", 403
+
+        # Check that the product exists
+        cursor.execute(
+            """
+            SELECT id
+            FROM products
+            WHERE id=%s
+            """,
+            (product_id,)
+        )
+
+        product = cursor.fetchone()
+
+        if not product:
+            return "Product not found", 404
+
+        # Remove the product from any carts first
+        cursor.execute(
+            """
+            DELETE FROM cart
+            WHERE product_id=%s
+            """,
+            (product_id,)
+        )
+
+        # Delete the product
+        cursor.execute(
+            """
+            DELETE FROM products
+            WHERE id=%s
+            """,
+            (product_id,)
+        )
+
+        conn.commit()
+
+    return redirect('/admin/products')
 
 # ✅ PRODUCTS (GLOBAL)
 products = [
@@ -110,6 +517,34 @@ products = [
 {"id": 15, "name": "Bluetooth Earbuds", "price": 75000, "image": "Bluetooth Earbuds.jpg", "rating": 4}
 ]
 
+def get_products_from_db():
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, name, price, image, rating, tag,
+                   category, description, stock
+            FROM products
+            ORDER BY id
+        """)
+
+        rows = cursor.fetchall()
+
+    return [
+        {
+            "id": row[0],
+            "name": row[1],
+            "price": float(row[2]),
+            "image": row[3],
+            "rating": row[4],
+            "tag": row[5],
+            "category": row[6],
+            "description": row[7],
+            "stock": row[8]
+        }
+        for row in rows
+    ]
+
 def get_cart_count(user_id):
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -122,6 +557,9 @@ def get_cart_count(user_id):
 
 @app.route('/')
 def home():
+    # Get products from Neon
+    db_products = get_products_from_db()
+
     # Get and clean the search term
     search = request.args.get('search', '').strip()
 
@@ -130,20 +568,21 @@ def home():
         query = search.lower()
 
         filtered_products = [
-            p for p in products
+            p for p in db_products
             if query in p['name'].lower()
             or query in p.get('tag', '').lower()
+            or query in p.get('category', '').lower()
         ]
     else:
-        filtered_products = products
+        filtered_products = db_products
 
     # Shuffle products for Trending and New Arrivals
-    shuffled = random.sample(products, len(products))
+    shuffled = random.sample(db_products, len(db_products))
 
     trending_products = shuffled[:6]
     new_arrivals = shuffled[6:12]
 
-       # Get logged-in user's ID
+    # Get logged-in user's ID
     user_id = session.get('user_id')
 
     cart_items = []
@@ -161,17 +600,17 @@ def home():
 
             rows = c.fetchall()
 
-    product_map = {p['id']: p for p in products}
+    product_map = {p['id']: p for p in db_products}
 
     for pid, qty in rows:
-            product = product_map.get(int(pid))
+        product = product_map.get(int(pid))
 
-            if product:
-                item = product.copy()
-                item['quantity'] = qty
+        if product:
+            item = product.copy()
+            item['quantity'] = qty
 
-                cart_items.append(item)
-                cart_count += qty
+            cart_items.append(item)
+            cart_count += qty
 
     return render_template(
         "index.html",
@@ -188,16 +627,34 @@ def home():
 # 🛍️ PRODUCT DETAILS
 @app.route("/product/<int:product_id>")
 def product_details(product_id):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
 
-    product_map = {p["id"]: p for p in products}
+        cursor.execute("""
+            SELECT id, name, price, image, rating, tag,
+                   category, description, stock
+            FROM products
+            WHERE id=%s
+        """, (product_id,))
 
-    product = product_map.get(product_id)
+        row = cursor.fetchone()
 
-    if not product:
+    if not row:
         return "Product not found", 404
 
-    wishlist = session.get("wishlist", [])
+    product = {
+        "id": row[0],
+        "name": row[1],
+        "price": float(row[2]),
+        "image": row[3],
+        "rating": row[4],
+        "tag": row[5],
+        "category": row[6],
+        "description": row[7],
+        "stock": row[8]
+    }
 
+    wishlist = session.get("wishlist", [])
     in_wishlist = product_id in wishlist
 
     return render_template(
@@ -225,6 +682,25 @@ def add_to_cart():
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # Check that the product exists in Neon
+    cursor.execute(
+        """
+        SELECT id, stock
+        FROM products
+        WHERE id=%s
+        """,
+        (product_id,)
+    )
+
+    product = cursor.fetchone()
+
+    if not product:
+        conn.close()
+        return jsonify({"error": "Product not found"}), 404
+
+    product_stock = product[1]
+
+    # Check available stock
     cursor.execute(
         """
         SELECT quantity
@@ -235,6 +711,15 @@ def add_to_cart():
     )
 
     row = cursor.fetchone()
+
+    current_quantity = row[0] if row else 0
+    new_quantity = current_quantity + quantity
+
+    if new_quantity > product_stock:
+        conn.close()
+        return jsonify({
+            "error": f"Only {product_stock} item(s) available."
+        }), 400
 
     if row:
 
@@ -272,7 +757,6 @@ def add_to_cart():
         "success": True,
         "cart_count": count
     })
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
