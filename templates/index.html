@@ -408,6 +408,35 @@ setInterval(() => {
 
     </div>
 
+    <!-- 🏷️ CATEGORIES -->
+<div class="category-filter">
+
+    <a href="/" class="{% if not category %}active{% endif %}">
+        All
+    </a>
+
+    <a href="/?category=Electronics"
+       class="{% if category == 'Electronics' %}active{% endif %}">
+        Electronics
+    </a>
+
+    <a href="/?category=Fashion"
+       class="{% if category == 'Fashion' %}active{% endif %}">
+        Fashion
+    </a>
+
+    <a href="/?category=Footwear"
+       class="{% if category == 'Footwear' %}active{% endif %}">
+        Footwear
+    </a>
+
+    <a href="/?category=Accessories"
+       class="{% if category == 'Accessories' %}active{% endif %}">
+        Accessories
+    </a>
+
+</div>
+
 
     <!-- 🔥 ALL PRODUCTS -->
     <h2 class="section-title">All Products</h2>

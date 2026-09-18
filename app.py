@@ -557,24 +557,32 @@ def get_cart_count(user_id):
 
 @app.route('/')
 def home():
+
     # Get products from Neon
     db_products = get_products_from_db()
 
-    # Get and clean the search term
+    # Get and clean search and category
     search = request.args.get('search', '').strip()
+    category = request.args.get('category', '').strip()
 
-    # Search products
+    # Filter products
+    filtered_products = db_products
+
+    if category:
+        filtered_products = [
+            p for p in filtered_products
+            if p.get('category', '').lower() == category.lower()
+        ]
+
     if search:
         query = search.lower()
 
         filtered_products = [
-            p for p in db_products
-            if query in p['name'].lower()
-            or query in p.get('tag', '').lower()
-            or query in p.get('category', '').lower()
+            p for p in filtered_products
+            if query in (p.get('name') or '').lower()
+            or query in (p.get('tag') or '').lower()
+            or query in (p.get('category') or '').lower()
         ]
-    else:
-        filtered_products = db_products
 
     # Shuffle products for Trending and New Arrivals
     shuffled = random.sample(db_products, len(db_products))
@@ -590,11 +598,17 @@ def home():
     rows = []
 
     if user_id:
+
         with get_db_connection() as conn:
+
             c = conn.cursor()
 
             c.execute(
-                "SELECT product_id, quantity FROM cart WHERE \"user\"=%s",
+                """
+                SELECT product_id, quantity
+                FROM cart
+                WHERE "user"=%s
+                """,
                 (user_id,)
             )
 
@@ -603,9 +617,11 @@ def home():
     product_map = {p['id']: p for p in db_products}
 
     for pid, qty in rows:
+
         product = product_map.get(int(pid))
 
         if product:
+
             item = product.copy()
             item['quantity'] = qty
 
@@ -621,9 +637,9 @@ def home():
         cart_count=cart_count,
         mini_cart=cart_items,
         user=session.get('user'),
-        search=search
+        search=search,
+        category=category
     )
-
 # 🛍️ PRODUCT DETAILS
 @app.route("/product/<int:product_id>")
 def product_details(product_id):
